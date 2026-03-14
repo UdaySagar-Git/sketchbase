@@ -137,11 +137,11 @@ export async function getWorkspaceNav() {
 
   if (!workspace) return null;
 
-  return workspace.projects.map((p) => ({
+  return workspace.projects.map((p: { id: string; name: string; emoji: string | null; boards: { id: string; name: string; passHash: string | null }[] }) => ({
     id: p.id,
     name: p.name,
     emoji: p.emoji,
-    boards: p.boards.map((b) => ({
+    boards: p.boards.map((b: { id: string; name: string; passHash: string | null }) => ({
       id: b.id,
       name: b.name,
       isLocked: !!b.passHash,
