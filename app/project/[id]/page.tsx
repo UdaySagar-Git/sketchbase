@@ -4,12 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { createBoard } from "@/app/actions";
 import Navbar from "@/components/Navbar";
 import BoardCard from "@/components/BoardCard";
+import { formatDateShort } from "@/lib/date";
 
-export default async function ProjectPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const keyHash = await getKeyHash();
   if (!keyHash) redirect("/");
@@ -27,9 +24,7 @@ export default async function ProjectPage({
   return (
     <div className="min-h-screen">
       <Navbar
-        breadcrumbs={[
-          { label: project.emoji ? `${project.emoji} ${project.name}` : project.name },
-        ]}
+        breadcrumbs={[{ label: project.emoji ? `${project.emoji} ${project.name}` : project.name }]}
       />
       <div className="mx-auto max-w-5xl px-6 py-8">
         <h1 className="text-2xl font-bold">
@@ -69,7 +64,7 @@ export default async function ProjectPage({
               id={board.id}
               name={board.name}
               isLocked={!!board.passHash}
-              updatedAt={board.updatedAt.toLocaleDateString()}
+              updatedAt={formatDateShort(board.updatedAt)}
             />
           ))}
         </div>

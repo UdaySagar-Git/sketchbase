@@ -10,20 +10,15 @@ import {
   deleteProject,
   deleteBoard,
 } from "@/app/actions";
+import { islandStyle } from "@/lib/styles";
+import { confirmDeleteBoard, confirmDeleteProject } from "@/lib/messages";
+import { Grid, ChevronRight, Plus, TrashSimple, Lock, File, X, Home } from "@/components/icons";
 
 type NavProject = {
   id: string;
   name: string;
   emoji: string | null;
   boards: { id: string; name: string; isLocked: boolean }[];
-};
-
-const islandStyle: React.CSSProperties = {
-  fontFamily: "var(--ui-font, system-ui, sans-serif)",
-  background: "rgba(255,255,255,0.97)",
-  color: "#1b1b1f",
-  boxShadow: "0 2px 12px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)",
-  border: "1px solid #e4e4e7",
 };
 
 export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) => void }) {
@@ -41,6 +36,7 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
     if (boardMatch) {
       const boardId = boardMatch[1];
       const proj = projects.find((p) => p.boards.some((b) => b.id === boardId));
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (proj) setExpanded((prev) => ({ ...prev, [proj.id]: true }));
     }
     const projMatch = pathname.match(/^\/project\/(.+)/);
@@ -101,7 +97,7 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
   }
 
   function handleDeleteProject(id: string, name: string) {
-    if (!confirm(`Delete "${name}" and all its boards?`)) return;
+    if (!confirm(confirmDeleteProject(name))) return;
     startTransition(async () => {
       await deleteProject(id);
       loadNav();
@@ -109,7 +105,7 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
   }
 
   function handleDeleteBoard(id: string, name: string) {
-    if (!confirm(`Delete "${name}"?`)) return;
+    if (!confirm(confirmDeleteBoard(name))) return;
     startTransition(async () => {
       await deleteBoard(id);
       loadNav();
@@ -125,12 +121,7 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
         style={{ width: 24, height: 24 }}
         title="Navigator"
       >
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={open ? "#6965db" : "#71717a"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="3" width="7" height="7" rx="1" />
-          <rect x="14" y="3" width="7" height="7" rx="1" />
-          <rect x="3" y="14" width="7" height="7" rx="1" />
-          <rect x="14" y="14" width="7" height="7" rx="1" />
-        </svg>
+        <Grid size={15} className={open ? "text-[#6965db]" : "text-zinc-500"} />
       </button>
 
       {/* Dropdown panel */}
@@ -151,9 +142,7 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
             <span className="text-xs font-semibold tracking-wide text-zinc-500 uppercase">
               Navigator
             </span>
-            {isPending && (
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-violet-400" />
-            )}
+            {isPending && <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-violet-400" />}
           </div>
 
           {/* Tree */}
@@ -166,7 +155,10 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
                     <div className="flex items-center gap-2 py-1">
                       <div className="skeleton h-3 w-3 rounded" />
                       <div className="skeleton h-4 w-4 rounded" />
-                      <div className="skeleton h-3.5 flex-1 rounded" style={{ maxWidth: 120 + i * 20 }} />
+                      <div
+                        className="skeleton h-3.5 flex-1 rounded"
+                        style={{ maxWidth: 120 + i * 20 }}
+                      />
                     </div>
                     {i === 0 && (
                       <div className="ml-6 space-y-1 border-l border-zinc-100 pl-2">
@@ -196,22 +188,18 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
                     className="flex shrink-0 items-center justify-center"
                     style={{ width: 16, height: 16 }}
                   >
-                    <svg
-                      width="10"
-                      height="10"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#a1a1aa"
-                      strokeWidth="2.5"
-                      className={`transition-transform duration-150 ${expanded[project.id] ? "rotate-90" : ""}`}
-                    >
-                      <polyline points="9 18 15 12 9 6" />
-                    </svg>
+                    <ChevronRight
+                      size={10}
+                      className={`text-zinc-400 transition-transform duration-150 ${expanded[project.id] ? "rotate-90" : ""}`}
+                    />
                   </button>
                   <span className="shrink-0 text-sm">{project.emoji || "📁"}</span>
                   <Link
                     href={`/project/${project.id}`}
-                    onClick={() => { setOpen(false); onToggle?.(false); }}
+                    onClick={() => {
+                      setOpen(false);
+                      onToggle?.(false);
+                    }}
                     className="flex-1 truncate font-medium text-zinc-700 hover:text-zinc-900"
                   >
                     {project.name}
@@ -226,18 +214,14 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
                       className="rounded-md p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
                       title="Add board"
                     >
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-                      </svg>
+                      <Plus size={12} />
                     </button>
                     <button
                       onClick={() => handleDeleteProject(project.id, project.name)}
                       className="rounded-md p-1 text-zinc-400 hover:bg-red-50 hover:text-red-500"
                       title="Delete project"
                     >
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                      </svg>
+                      <TrashSimple size={12} />
                     </button>
                   </div>
                 </div>
@@ -254,29 +238,25 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
                         >
                           <Link
                             href={`/board/${board.id}`}
-                            onClick={() => { setOpen(false); onToggle?.(false); }}
+                            onClick={() => {
+                              setOpen(false);
+                              onToggle?.(false);
+                            }}
                             className="flex flex-1 items-center gap-1.5 truncate"
                           >
                             {board.isLocked ? (
-                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 opacity-50">
-                                <rect width="18" height="11" x="3" y="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                              </svg>
+                              <Lock size={11} className="shrink-0 opacity-50" />
                             ) : (
-                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 opacity-30">
-                                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-                                <polyline points="14 2 14 8 20 8" />
-                              </svg>
+                              <File size={11} className="shrink-0 opacity-30" />
                             )}
                             <span className="truncate">{board.name}</span>
                           </Link>
                           <button
                             onClick={() => handleDeleteBoard(board.id, board.name)}
-                            className="shrink-0 rounded-md p-0.5 text-zinc-400 opacity-0 transition-opacity hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
+                            className="shrink-0 rounded-md p-0.5 text-zinc-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-50 hover:text-red-500"
                             title="Delete board"
                           >
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                            </svg>
+                            <X size={11} />
                           </button>
                         </div>
                       );
@@ -290,7 +270,10 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
                           onChange={(e) => setInputValue(e.target.value)}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") handleAddBoard(project.id);
-                            if (e.key === "Escape") { setAdding(null); setInputValue(""); }
+                            if (e.key === "Escape") {
+                              setAdding(null);
+                              setInputValue("");
+                            }
                           }}
                           placeholder="Board name..."
                           autoFocus
@@ -320,7 +303,10 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleAddProject();
-                    if (e.key === "Escape") { setAdding(null); setInputValue(""); }
+                    if (e.key === "Escape") {
+                      setAdding(null);
+                      setInputValue("");
+                    }
                   }}
                   placeholder="Project name..."
                   autoFocus
@@ -329,12 +315,13 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
               </div>
             ) : (
               <button
-                onClick={() => { setAdding("__project__"); setInputValue(""); }}
+                onClick={() => {
+                  setAdding("__project__");
+                  setInputValue("");
+                }}
                 className="mt-1 flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-zinc-400 hover:bg-zinc-50 hover:text-zinc-600"
               >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-                </svg>
+                <Plus size={12} />
                 <span className="text-xs">New Project</span>
               </button>
             )}
@@ -344,12 +331,13 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
           <div className="border-t border-zinc-100 px-3 py-2">
             <Link
               href="/dashboard"
-              onClick={() => { setOpen(false); onToggle?.(false); }}
+              onClick={() => {
+                setOpen(false);
+                onToggle?.(false);
+              }}
               className="flex items-center gap-2 text-xs text-zinc-400 hover:text-zinc-600"
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" />
-              </svg>
+              <Home size={12} />
               Go to Dashboard
             </Link>
           </div>

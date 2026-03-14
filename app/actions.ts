@@ -5,6 +5,17 @@ import { hashKey } from "@/lib/hash";
 import { getKeyHash, setKeyHash, clearKeyHash } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import {
+  MSG_ENTER_WORKSPACE_KEY,
+  MSG_WORKSPACE_REQUIRES_PASSWORD,
+  MSG_INCORRECT_PASSWORD,
+  MSG_CURRENT_PASSWORD_REQUIRED,
+  MSG_CURRENT_PASSWORD_INCORRECT,
+  MSG_PASSWORD_UPDATED,
+  MSG_PASSWORD_REMOVED,
+  MSG_PROJECT_NAME_REQUIRED,
+  MSG_BOARD_NAME_REQUIRED,
+} from "@/lib/messages";
 
 // --- Auth ---
 
@@ -16,7 +27,7 @@ export async function enterWorkspace(
   const password = formData.get("password") as string | null;
 
   if (!key || key.trim().length === 0) {
-    return { error: "Please enter a workspace key" };
+    return { error: MSG_ENTER_WORKSPACE_KEY };
   }
 
   const keyHash = await hashKey(key.trim());
@@ -26,17 +37,16 @@ export async function enterWorkspace(
     // Existing workspace — verify password if one is set
     if (existing.passHash) {
       if (!password) {
-        return { error: "This workspace requires a password" };
+        return { error: MSG_WORKSPACE_REQUIRES_PASSWORD };
       }
       const inputHash = await hashKey(password);
       if (inputHash !== existing.passHash) {
-        return { error: "Incorrect password" };
+        return { error: MSG_INCORRECT_PASSWORD };
       }
     }
   } else {
     // New workspace — create it, optionally with a password
-    const passHash =
-      password && password.length > 0 ? await hashKey(password) : null;
+    const passHash = password && password.length > 0 ? await hashKey(password) : null;
     await prisma.workspace.create({
       data: { keyHash, passHash },
     });
@@ -67,17 +77,16 @@ export async function updateWorkspacePassword(
   // Verify current password if workspace has one
   if (workspace.passHash) {
     if (!currentPassword) {
-      return { error: "Current password is required" };
+      return { error: MSG_CURRENT_PASSWORD_REQUIRED };
     }
     const currentHash = await hashKey(currentPassword);
     if (currentHash !== workspace.passHash) {
-      return { error: "Current password is incorrect" };
+      return { error: MSG_CURRENT_PASSWORD_INCORRECT };
     }
   }
 
   // Set or remove password
-  const newPassHash =
-    newPassword && newPassword.length > 0 ? await hashKey(newPassword) : null;
+  const newPassHash = newPassword && newPassword.length > 0 ? await hashKey(newPassword) : null;
 
   await prisma.workspace.update({
     where: { keyHash },
@@ -85,9 +94,9 @@ export async function updateWorkspacePassword(
   });
 
   if (newPassHash) {
-    return { success: "Password updated" };
+    return { success: MSG_PASSWORD_UPDATED };
   }
-  return { success: "Password removed — workspace is now open access" };
+  return { success: MSG_PASSWORD_REMOVED };
 }
 
 export async function deleteWorkspace() {
@@ -137,16 +146,23 @@ export async function getWorkspaceNav() {
 
   if (!workspace) return null;
 
-  return workspace.projects.map((p: { id: string; name: string; emoji: string | null; boards: { id: string; name: string; passHash: string | null }[] }) => ({
-    id: p.id,
-    name: p.name,
-    emoji: p.emoji,
-    boards: p.boards.map((b: { id: string; name: string; passHash: string | null }) => ({
-      id: b.id,
-      name: b.name,
-      isLocked: !!b.passHash,
-    })),
-  }));
+  return workspace.projects.map(
+    (p: {
+      id: string;
+      name: string;
+      emoji: string | null;
+      boards: { id: string; name: string; passHash: string | null }[];
+    }) => ({
+      id: p.id,
+      name: p.name,
+      emoji: p.emoji,
+      boards: p.boards.map((b: { id: string; name: string; passHash: string | null }) => ({
+        id: b.id,
+        name: b.name,
+        isLocked: !!b.passHash,
+      })),
+    })
+  );
 }
 
 // --- Helpers ---
@@ -187,7 +203,7 @@ export async function createProject(formData: FormData) {
   const emoji = (formData.get("emoji") as string) || null;
 
   if (!name || name.trim().length === 0) {
-    throw new Error("Project name is required");
+    throw new Error(MSG_PROJECT_NAME_REQUIRED);
   }
 
   const workspace = await prisma.workspace.findUnique({
@@ -236,7 +252,7 @@ export async function createBoard(formData: FormData) {
   const password = formData.get("password") as string | null;
 
   if (!name || name.trim().length === 0) {
-    throw new Error("Board name is required");
+    throw new Error(MSG_BOARD_NAME_REQUIRED);
   }
 
   await verifyProjectOwnership(projectId, keyHash);
@@ -293,7 +309,7 @@ export async function verifyBoardPassword(boardId: string, password: string) {
 
   const inputHash = await hashKey(password);
   if (inputHash !== board.passHash) {
-    return { success: false, error: "Incorrect password" };
+    return { success: false, error: MSG_INCORRECT_PASSWORD };
   }
 
   return { success: true };

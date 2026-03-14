@@ -5,6 +5,8 @@ import Link from "next/link";
 import ExcalidrawBoard from "@/components/ExcalidrawBoard";
 import PasswordOverlay from "@/components/PasswordOverlay";
 import BoardSidebar from "@/components/BoardSidebar";
+import { islandStyle } from "@/lib/styles";
+import { Home } from "@/components/icons";
 
 interface BoardClientProps {
   boardId: string;
@@ -15,14 +17,6 @@ interface BoardClientProps {
   initialData: Record<string, unknown> | null;
   isLocked: boolean;
 }
-
-const islandStyle: React.CSSProperties = {
-  fontFamily: "var(--ui-font, system-ui, sans-serif)",
-  background: "rgba(255,255,255,0.97)",
-  color: "#1b1b1f",
-  boxShadow: "0 2px 12px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)",
-  border: "1px solid #e4e4e7",
-};
 
 export default function BoardClient({
   boardId,
@@ -38,6 +32,7 @@ export default function BoardClient({
   useEffect(() => {
     if (isLocked) {
       const wasUnlocked = sessionStorage.getItem(`board-unlocked-${boardId}`);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (wasUnlocked === "true") setUnlocked(true);
     }
   }, [boardId, isLocked]);
@@ -63,16 +58,15 @@ export default function BoardClient({
           className="flex items-center text-zinc-400 transition-colors hover:text-zinc-600"
           title="Dashboard"
         >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" />
-          </svg>
+          <Home size={13} />
         </Link>
         <span className="text-zinc-300">/</span>
         <Link
           href={`/project/${projectId}`}
           className="text-zinc-500 transition-colors hover:text-zinc-800"
         >
-          {projectEmoji && `${projectEmoji} `}{projectName}
+          {projectEmoji && `${projectEmoji} `}
+          {projectName}
         </Link>
         <span className="text-zinc-300">/</span>
         <span className="font-medium text-zinc-800">{boardName}</span>

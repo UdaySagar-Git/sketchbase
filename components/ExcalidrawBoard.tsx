@@ -4,19 +4,22 @@ import { useCallback, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import "@excalidraw/excalidraw/index.css";
 import { saveBoard } from "@/app/actions";
+import {
+  AUTOSAVE_DEBOUNCE_MS,
+  SAVE_STATUS_DISPLAY_MS,
+  ERROR_STATUS_DISPLAY_MS,
+} from "@/lib/constants";
+import { MSG_SAVING, MSG_SAVED, MSG_SAVE_FAILED, MSG_LAST_SAVED } from "@/lib/messages";
+import { formatTime } from "@/lib/date";
+import { Check } from "@/components/icons";
 
-const Excalidraw = dynamic(
-  () => import("@excalidraw/excalidraw").then((mod) => mod.Excalidraw),
-  { ssr: false }
-);
+const Excalidraw = dynamic(() => import("@excalidraw/excalidraw").then((mod) => mod.Excalidraw), {
+  ssr: false,
+});
 
 interface ExcalidrawBoardProps {
   boardId: string;
   initialData: Record<string, unknown> | null;
-}
-
-function formatTime(date: Date) {
-  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
 export default function ExcalidrawBoard({ boardId, initialData }: ExcalidrawBoardProps) {
@@ -38,12 +41,12 @@ export default function ExcalidrawBoard({ boardId, initialData }: ExcalidrawBoar
           const now = new Date();
           setLastSaved(now);
           setSaveStatus("saved");
-          setTimeout(() => setSaveStatus("idle"), 3000);
+          setTimeout(() => setSaveStatus("idle"), SAVE_STATUS_DISPLAY_MS);
         } catch {
           setSaveStatus("error");
-          setTimeout(() => setSaveStatus("idle"), 4000);
+          setTimeout(() => setSaveStatus("idle"), ERROR_STATUS_DISPLAY_MS);
         }
-      }, 2000);
+      }, AUTOSAVE_DEBOUNCE_MS);
     },
     [boardId]
   );
@@ -52,14 +55,19 @@ export default function ExcalidrawBoard({ boardId, initialData }: ExcalidrawBoar
     <div className="relative h-full w-full">
       <Excalidraw
         theme="light"
-        initialData={initialData ? {
-          elements: (initialData.elements as never[]) || [],
-          appState: (() => {
-            const { collaborators, ...rest } = (initialData.appState as Record<string, unknown>) || {};
-            void collaborators;
-            return { ...rest, theme: "light" };
-          })(),
-        } : undefined}
+        initialData={
+          initialData
+            ? {
+                elements: (initialData.elements as never[]) || [],
+                appState: (() => {
+                  const { collaborators, ...rest } =
+                    (initialData.appState as Record<string, unknown>) || {};
+                  void collaborators;
+                  return { ...rest, theme: "light" };
+                })(),
+              }
+            : undefined
+        }
         onChange={handleChange}
       />
 
@@ -78,29 +86,25 @@ export default function ExcalidrawBoard({ boardId, initialData }: ExcalidrawBoar
           {saveStatus === "saving" && (
             <>
               <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-violet-500" />
-              <span>Saving...</span>
+              <span>{MSG_SAVING}</span>
             </>
           )}
           {saveStatus === "saved" && (
             <>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              <span>Saved</span>
-              {lastSaved && (
-                <span className="text-zinc-400">{formatTime(lastSaved)}</span>
-              )}
+              <Check size={12} className="text-green-500" />
+              <span>{MSG_SAVED}</span>
+              {lastSaved && <span className="text-zinc-400">{formatTime(lastSaved)}</span>}
             </>
           )}
           {saveStatus === "error" && (
             <>
               <span className="inline-block h-2 w-2 rounded-full bg-red-500" />
-              <span className="text-red-500">Save failed</span>
+              <span className="text-red-500">{MSG_SAVE_FAILED}</span>
             </>
           )}
           {saveStatus === "idle" && lastSaved && (
             <span className="text-zinc-400">
-              Last saved {formatTime(lastSaved)}
+              {MSG_LAST_SAVED} {formatTime(lastSaved)}
             </span>
           )}
         </div>

@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { deleteProject } from "@/app/actions";
+import { confirmDeleteProject } from "@/lib/messages";
+import { Trash } from "@/components/icons";
 
 interface ProjectCardProps {
   id: string;
@@ -22,15 +24,13 @@ export default function ProjectCard({ id, name, emoji, boardCount }: ProjectCard
       </Link>
       <button
         onClick={() => {
-          if (confirm(`Delete "${name}" and all its boards?`)) {
+          if (confirm(confirmDeleteProject(name))) {
             deleteProject(id);
           }
         }}
-        className="absolute top-3 right-3 hidden rounded-md p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 group-hover:block"
+        className="absolute top-3 right-3 hidden rounded-md p-1 text-zinc-400 group-hover:block hover:bg-zinc-100 hover:text-zinc-600"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-        </svg>
+        <Trash size={16} />
       </button>
     </div>
   );

@@ -20,10 +20,7 @@ export default async function SettingsPage() {
           Manage your workspace security and preferences.
         </p>
 
-        <SettingsClient
-          hasPassword={settings.hasPassword}
-          createdAt={settings.createdAt}
-        />
+        <SettingsClient hasPassword={settings.hasPassword} createdAt={settings.createdAt} />
       </div>
     </div>
   );

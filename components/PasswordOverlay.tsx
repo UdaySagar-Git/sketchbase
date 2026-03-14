@@ -30,7 +30,10 @@ export default function PasswordOverlay({ boardId, onUnlock }: PasswordOverlayPr
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
-      <form onSubmit={handleSubmit} className="flex w-full max-w-sm flex-col gap-4 rounded-xl border border-zinc-200 bg-white p-8 shadow-lg">
+      <form
+        onSubmit={handleSubmit}
+        className="flex w-full max-w-sm flex-col gap-4 rounded-xl border border-zinc-200 bg-white p-8 shadow-lg"
+      >
         <div className="text-center">
           <div className="text-3xl">🔒</div>
           <h2 className="mt-2 text-lg font-semibold">This board is protected</h2>

@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
+import { COOKIE_MAX_AGE_SECONDS } from "@/lib/constants";
 
 const COOKIE_NAME = "keyHash";
-const MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
 export async function getKeyHash(): Promise<string | undefined> {
   const cookieStore = await cookies();
@@ -15,7 +15,7 @@ export async function setKeyHash(hash: string): Promise<void> {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: MAX_AGE,
+    maxAge: COOKIE_MAX_AGE_SECONDS,
   });
 }
 

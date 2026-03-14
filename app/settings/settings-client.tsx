@@ -2,6 +2,8 @@
 
 import { useActionState, useTransition } from "react";
 import { updateWorkspacePassword, deleteWorkspace } from "@/app/actions";
+import { formatDate } from "@/lib/date";
+import { MSG_CONFIRM_DELETE_WORKSPACE } from "@/lib/messages";
 
 interface SettingsClientProps {
   hasPassword: boolean;
@@ -20,7 +22,7 @@ export default function SettingsClient({ hasPassword, createdAt }: SettingsClien
         <div className="mt-3 space-y-2 text-sm">
           <div className="flex justify-between">
             <span className="text-zinc-500">Created</span>
-            <span suppressHydrationWarning>{new Date(createdAt).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}</span>
+            <span suppressHydrationWarning>{formatDate(createdAt)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-zinc-500">Password protection</span>
@@ -45,9 +47,7 @@ export default function SettingsClient({ hasPassword, createdAt }: SettingsClien
         <form action={formAction} className="mt-4 space-y-3">
           {hasPassword && (
             <div>
-              <label className="block text-sm font-medium text-zinc-700">
-                Current password
-              </label>
+              <label className="block text-sm font-medium text-zinc-700">Current password</label>
               <input
                 type="password"
                 name="currentPassword"
@@ -70,12 +70,8 @@ export default function SettingsClient({ hasPassword, createdAt }: SettingsClien
             />
           </div>
 
-          {state?.error && (
-            <p className="text-sm text-red-500">{state.error}</p>
-          )}
-          {state?.success && (
-            <p className="text-sm text-green-600">{state.success}</p>
-          )}
+          {state?.error && <p className="text-sm text-red-500">{state.error}</p>}
+          {state?.success && <p className="text-sm text-green-600">{state.success}</p>}
 
           <button
             type="submit"
@@ -91,16 +87,12 @@ export default function SettingsClient({ hasPassword, createdAt }: SettingsClien
       <div className="rounded-lg border border-red-200 p-5">
         <h2 className="font-semibold text-red-600">Danger Zone</h2>
         <p className="mt-1 text-sm text-zinc-500">
-          Permanently delete this workspace and all its projects, boards, and data.
-          This cannot be undone.
+          Permanently delete this workspace and all its projects, boards, and data. This cannot be
+          undone.
         </p>
         <button
           onClick={() => {
-            if (
-              confirm(
-                "Are you sure? This will permanently delete your workspace, all projects, and all boards. This cannot be undone."
-              )
-            ) {
+            if (confirm(MSG_CONFIRM_DELETE_WORKSPACE)) {
               startDelete(() => deleteWorkspace());
             }
           }}

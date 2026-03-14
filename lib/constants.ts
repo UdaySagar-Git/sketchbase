@@ -1,0 +1,6 @@
+export const COOKIE_MAX_AGE_DAYS = 7;
+export const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * COOKIE_MAX_AGE_DAYS;
+
+export const AUTOSAVE_DEBOUNCE_MS = 2000;
+export const SAVE_STATUS_DISPLAY_MS = 3000;
+export const ERROR_STATUS_DISPLAY_MS = 4000;
