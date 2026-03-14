@@ -15,7 +15,14 @@ export function middleware(request: NextRequest) {
 
   // Board pages are publicly accessible (embeddable URLs)
   if (pathname.startsWith("/board/")) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    // Allow embedding in any origin (overrides any upstream X-Frame-Options)
+    response.headers.set(
+      "Content-Security-Policy",
+      "frame-ancestors *"
+    );
+    response.headers.delete("X-Frame-Options");
+    return response;
   }
 
   // All other routes require auth

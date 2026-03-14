@@ -38,8 +38,8 @@ export async function setBoardUnlocked(boardId: string): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.set(`${BOARD_UNLOCK_PREFIX}${boardId}`, "1", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: true,
+    sameSite: "none",
     path: `/board/${boardId}`,
     maxAge: BOARD_UNLOCK_MAX_AGE,
   });
