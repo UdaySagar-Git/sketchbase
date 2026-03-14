@@ -114,7 +114,7 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
 
   return (
     <>
-      {/* Trigger button — rendered inline where placed */}
+      {/* Trigger button */}
       <button
         onClick={toggle}
         className="flex items-center justify-center rounded-md transition-colors hover:bg-black/5"
@@ -124,17 +124,16 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
         <Grid size={15} className={open ? "text-[#6965db]" : "text-zinc-500"} />
       </button>
 
-      {/* Dropdown panel */}
+      {/* Dropdown panel — full-width on mobile, fixed-width on desktop */}
       {open && (
         <div
           ref={panelRef}
-          className="absolute z-50 flex flex-col overflow-hidden rounded-xl"
+          className="fixed inset-x-2 bottom-[110px] z-50 flex max-h-[60vh] flex-col overflow-hidden rounded-2xl md:absolute md:inset-x-auto md:bottom-auto md:max-h-[calc(100vh-80px)] md:rounded-xl"
           style={{
             ...islandStyle,
-            top: 48,
-            left: 0,
-            width: 280,
-            maxHeight: "calc(100vh - 80px)",
+            ...(typeof window !== "undefined" && window.innerWidth >= 768
+              ? { top: 48, left: 0, width: 280 }
+              : {}),
           }}
         >
           {/* Header */}
@@ -142,7 +141,20 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
             <span className="text-xs font-semibold tracking-wide text-zinc-500 uppercase">
               Navigator
             </span>
-            {isPending && <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-violet-400" />}
+            <div className="flex items-center gap-2">
+              {isPending && (
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-violet-400" />
+              )}
+              <button
+                onClick={() => {
+                  setOpen(false);
+                  onToggle?.(false);
+                }}
+                className="rounded-md p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 sm:hidden"
+              >
+                <X size={14} />
+              </button>
+            </div>
           </div>
 
           {/* Tree */}
@@ -180,7 +192,7 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
             {projects.map((project) => (
               <div key={project.id} className="mb-0.5">
                 {/* Project row */}
-                <div className="group flex items-center gap-1.5 rounded-lg px-2 py-1.5 hover:bg-zinc-50">
+                <div className="group flex items-center gap-1.5 rounded-lg px-2 py-2 hover:bg-zinc-50 sm:py-1.5">
                   <button
                     onClick={() =>
                       setExpanded((prev) => ({ ...prev, [project.id]: !prev[project.id] }))
@@ -204,21 +216,21 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
                   >
                     {project.name}
                   </Link>
-                  <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                  <div className="flex items-center gap-0.5 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100">
                     <button
                       onClick={() => {
                         setAdding(project.id);
                         setInputValue("");
                         setExpanded((prev) => ({ ...prev, [project.id]: true }));
                       }}
-                      className="rounded-md p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
+                      className="rounded-md p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 sm:p-1"
                       title="Add board"
                     >
                       <Plus size={12} />
                     </button>
                     <button
                       onClick={() => handleDeleteProject(project.id, project.name)}
-                      className="rounded-md p-1 text-zinc-400 hover:bg-red-50 hover:text-red-500"
+                      className="rounded-md p-1.5 text-zinc-400 hover:bg-red-50 hover:text-red-500 sm:p-1"
                       title="Delete project"
                     >
                       <TrashSimple size={12} />
@@ -234,7 +246,7 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
                       return (
                         <div
                           key={board.id}
-                          className={`group flex items-center gap-1.5 rounded-lg px-2 py-1 ${isActive ? "bg-violet-50 text-violet-700" : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-700"}`}
+                          className={`group flex items-center gap-1.5 rounded-lg px-2 py-1.5 sm:py-1 ${isActive ? "bg-violet-50 text-violet-700" : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-700"}`}
                         >
                           <Link
                             href={`/board/${board.id}`}
@@ -253,7 +265,7 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
                           </Link>
                           <button
                             onClick={() => handleDeleteBoard(board.id, board.name)}
-                            className="shrink-0 rounded-md p-0.5 text-zinc-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-50 hover:text-red-500"
+                            className="shrink-0 rounded-md p-1 text-zinc-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-50 hover:text-red-500"
                             title="Delete board"
                           >
                             <X size={11} />
@@ -277,7 +289,7 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
                           }}
                           placeholder="Board name..."
                           autoFocus
-                          className="flex-1 rounded-md border border-zinc-200 bg-white px-2 py-1 text-xs focus:border-violet-400 focus:outline-none"
+                          className="flex-1 rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-xs focus:border-violet-400 focus:outline-none sm:py-1"
                         />
                       </div>
                     )}
@@ -310,7 +322,7 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
                   }}
                   placeholder="Project name..."
                   autoFocus
-                  className="flex-1 rounded-md border border-zinc-200 bg-white px-2 py-1 text-xs focus:border-violet-400 focus:outline-none"
+                  className="flex-1 rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-xs focus:border-violet-400 focus:outline-none sm:py-1"
                 />
               </div>
             ) : (
@@ -319,7 +331,7 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
                   setAdding("__project__");
                   setInputValue("");
                 }}
-                className="mt-1 flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-zinc-400 hover:bg-zinc-50 hover:text-zinc-600"
+                className="mt-1 flex w-full items-center gap-2 rounded-lg px-2 py-2 text-zinc-400 hover:bg-zinc-50 hover:text-zinc-600 sm:py-1.5"
               >
                 <Plus size={12} />
                 <span className="text-xs">New Project</span>
@@ -328,7 +340,7 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
           </div>
 
           {/* Footer */}
-          <div className="border-t border-zinc-100 px-3 py-2">
+          <div className="border-t border-zinc-100 px-3 py-2.5 sm:py-2">
             <Link
               href="/dashboard"
               onClick={() => {

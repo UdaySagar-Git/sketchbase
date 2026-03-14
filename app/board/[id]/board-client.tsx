@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import ExcalidrawBoard from "@/components/ExcalidrawBoard";
 import PasswordOverlay from "@/components/PasswordOverlay";
@@ -16,6 +16,7 @@ interface BoardClientProps {
   projectId: string;
   initialData: Record<string, unknown> | null;
   isLocked: boolean;
+  isOwner: boolean;
 }
 
 export default function BoardClient({
@@ -26,54 +27,61 @@ export default function BoardClient({
   projectId,
   initialData,
   isLocked,
+  isOwner,
 }: BoardClientProps) {
   const [unlocked, setUnlocked] = useState(!isLocked);
-
-  useEffect(() => {
-    if (isLocked) {
-      const wasUnlocked = sessionStorage.getItem(`board-unlocked-${boardId}`);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (wasUnlocked === "true") setUnlocked(true);
-    }
-  }, [boardId, isLocked]);
+  const [boardData, setBoardData] = useState(initialData);
 
   if (!unlocked) {
-    return <PasswordOverlay boardId={boardId} onUnlock={() => setUnlocked(true)} />;
+    return (
+      <PasswordOverlay
+        boardId={boardId}
+        onUnlock={(content) => {
+          setBoardData(content);
+          setUnlocked(true);
+        }}
+      />
+    );
   }
 
   return (
     <div className="h-screen w-screen">
-      {/* Breadcrumb island — top left, offset to clear Excalidraw menu */}
+      {/* Breadcrumb island — bottom-left on mobile, top-left on desktop */}
       <div
-        className="pointer-events-auto absolute z-20 flex items-center gap-2 rounded-xl px-2.5 py-1.5 text-xs"
-        style={{ top: 15, left: 60, ...islandStyle }}
+        className="pointer-events-auto absolute bottom-[70px] left-3 z-20 flex items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] sm:gap-2 sm:rounded-xl sm:px-2.5 sm:py-1.5 sm:text-xs md:top-[15px] md:bottom-auto md:left-[60px]"
+        style={islandStyle}
       >
-        {/* Sidebar toggle — integrated into breadcrumb */}
-        <BoardSidebar />
-
-        <div className="h-4 w-px bg-zinc-200" />
+        {/* Navigator — only for workspace owners */}
+        {isOwner && (
+          <>
+            <BoardSidebar />
+            <div className="hidden h-4 w-px bg-zinc-200 sm:block" />
+            <Link
+              href="/dashboard"
+              className="hidden items-center text-zinc-400 transition-colors hover:text-zinc-600 sm:flex"
+              title="Dashboard"
+            >
+              <Home size={13} />
+            </Link>
+            <span className="hidden text-zinc-300 sm:inline">/</span>
+          </>
+        )}
 
         <Link
-          href="/dashboard"
-          className="flex items-center text-zinc-400 transition-colors hover:text-zinc-600"
-          title="Dashboard"
-        >
-          <Home size={13} />
-        </Link>
-        <span className="text-zinc-300">/</span>
-        <Link
-          href={`/project/${projectId}`}
-          className="text-zinc-500 transition-colors hover:text-zinc-800"
+          href={isOwner ? `/project/${projectId}` : "#"}
+          className={`max-w-[80px] truncate text-zinc-500 transition-colors sm:max-w-none ${isOwner ? "hover:text-zinc-800" : "pointer-events-none"}`}
         >
           {projectEmoji && `${projectEmoji} `}
           {projectName}
         </Link>
         <span className="text-zinc-300">/</span>
-        <span className="font-medium text-zinc-800">{boardName}</span>
+        <span className="max-w-[80px] truncate font-medium text-zinc-800 sm:max-w-none">
+          {boardName}
+        </span>
       </div>
 
       {/* Canvas */}
-      <ExcalidrawBoard boardId={boardId} initialData={initialData} />
+      <ExcalidrawBoard boardId={boardId} initialData={boardData} />
     </div>
   );
 }

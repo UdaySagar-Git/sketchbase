@@ -2,7 +2,14 @@
 
 import { prisma } from "@/lib/prisma";
 import { hashKey } from "@/lib/hash";
-import { getKeyHash, setKeyHash, clearKeyHash } from "@/lib/auth";
+import {
+  getKeyHash,
+  setKeyHash,
+  clearKeyHash,
+  isBoardUnlocked,
+  setBoardUnlocked,
+  timingSafeEqual,
+} from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import {
@@ -34,18 +41,16 @@ export async function enterWorkspace(
   const existing = await prisma.workspace.findUnique({ where: { keyHash } });
 
   if (existing) {
-    // Existing workspace — verify password if one is set
     if (existing.passHash) {
       if (!password) {
         return { error: MSG_WORKSPACE_REQUIRES_PASSWORD };
       }
       const inputHash = await hashKey(password);
-      if (inputHash !== existing.passHash) {
+      if (!timingSafeEqual(inputHash, existing.passHash)) {
         return { error: MSG_INCORRECT_PASSWORD };
       }
     }
   } else {
-    // New workspace — create it, optionally with a password
     const passHash = password && password.length > 0 ? await hashKey(password) : null;
     await prisma.workspace.create({
       data: { keyHash, passHash },
@@ -74,18 +79,16 @@ export async function updateWorkspacePassword(
   const workspace = await prisma.workspace.findUnique({ where: { keyHash } });
   if (!workspace) redirect("/");
 
-  // Verify current password if workspace has one
   if (workspace.passHash) {
     if (!currentPassword) {
       return { error: MSG_CURRENT_PASSWORD_REQUIRED };
     }
     const currentHash = await hashKey(currentPassword);
-    if (currentHash !== workspace.passHash) {
+    if (!timingSafeEqual(currentHash, workspace.passHash)) {
       return { error: MSG_CURRENT_PASSWORD_INCORRECT };
     }
   }
 
-  // Set or remove password
   const newPassHash = newPassword && newPassword.length > 0 ? await hashKey(newPassword) : null;
 
   await prisma.workspace.update({
@@ -195,6 +198,34 @@ async function verifyBoardOwnership(boardId: string, keyHash: string) {
   return board;
 }
 
+/**
+ * Check if the caller has access to the given board.
+ * Access is granted if:
+ *  - The board is public (no passHash), OR
+ *  - The caller is the workspace owner (has keyHash cookie), OR
+ *  - The board has been unlocked via password (httpOnly cookie)
+ */
+async function verifyBoardAccess(boardId: string) {
+  const board = await prisma.board.findUnique({
+    where: { id: boardId },
+    include: { project: { include: { workspace: true } } },
+  });
+  if (!board) throw new Error("Board not found");
+
+  // Public board — no password required
+  if (!board.passHash) return board;
+
+  // Workspace owner always has access
+  const keyHash = await getKeyHash();
+  if (keyHash && board.project.workspace.keyHash === keyHash) return board;
+
+  // Check board unlock cookie
+  const unlocked = await isBoardUnlocked(boardId);
+  if (unlocked) return board;
+
+  throw new Error("Unauthorized");
+}
+
 // --- Projects ---
 
 export async function createProject(formData: FormData) {
@@ -291,8 +322,7 @@ export async function renameBoard(id: string, name: string) {
 }
 
 export async function saveBoard(id: string, content: unknown) {
-  const keyHash = await requireKeyHash();
-  await verifyBoardOwnership(id, keyHash);
+  await verifyBoardAccess(id);
 
   await prisma.board.update({
     where: { id },
@@ -300,17 +330,45 @@ export async function saveBoard(id: string, content: unknown) {
   });
 }
 
-export async function verifyBoardPassword(boardId: string, password: string) {
-  const keyHash = await requireKeyHash();
-  await verifyBoardOwnership(boardId, keyHash);
-
+/**
+ * Verify board password and unlock the board.
+ * Sets an httpOnly cookie so the server knows the board is unlocked.
+ * Returns the board content on success so the client can render it.
+ */
+export async function unlockBoard(
+  boardId: string,
+  password: string
+): Promise<{
+  success: boolean;
+  error?: string;
+  content?: Record<string, unknown> | null;
+}> {
   const board = await prisma.board.findUnique({ where: { id: boardId } });
-  if (!board || !board.passHash) return { success: true };
+  if (!board) return { success: false, error: "Board not found" };
+  if (!board.passHash) return { success: true, content: board.content as Record<string, unknown> };
 
   const inputHash = await hashKey(password);
-  if (inputHash !== board.passHash) {
+  if (!timingSafeEqual(inputHash, board.passHash)) {
     return { success: false, error: MSG_INCORRECT_PASSWORD };
   }
 
+  // Set server-side unlock cookie
+  await setBoardUnlocked(boardId);
+
+  return { success: true, content: board.content as Record<string, unknown> };
+}
+
+// Keep for backward compat — but unlockBoard is preferred
+export async function verifyBoardPassword(boardId: string, password: string) {
+  const board = await prisma.board.findUnique({ where: { id: boardId } });
+  if (!board) return { success: false, error: "Board not found" };
+  if (!board.passHash) return { success: true };
+
+  const inputHash = await hashKey(password);
+  if (!timingSafeEqual(inputHash, board.passHash)) {
+    return { success: false, error: MSG_INCORRECT_PASSWORD };
+  }
+
+  await setBoardUnlocked(boardId);
   return { success: true };
 }

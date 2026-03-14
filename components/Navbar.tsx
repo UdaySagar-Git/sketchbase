@@ -8,28 +8,28 @@ interface NavbarProps {
 
 export default function Navbar({ breadcrumbs }: NavbarProps) {
   return (
-    <nav className="flex items-center justify-between border-b border-zinc-200 px-6 py-3">
-      <div className="flex items-center gap-2 text-sm">
-        <Link href="/dashboard" className="text-lg font-bold">
+    <nav className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 sm:px-6">
+      <div className="flex min-w-0 items-center gap-1.5 text-sm sm:gap-2">
+        <Link href="/dashboard" className="shrink-0 text-lg font-bold">
           Sketchbase
         </Link>
         {breadcrumbs?.map((crumb, i) => (
-          <span key={i} className="flex items-center gap-2">
-            <span className="text-zinc-400">/</span>
+          <span key={i} className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+            <span className="shrink-0 text-zinc-400">/</span>
             {crumb.href ? (
-              <Link href={crumb.href} className="text-zinc-600 hover:text-zinc-900">
+              <Link href={crumb.href} className="truncate text-zinc-600 hover:text-zinc-900">
                 {crumb.label}
               </Link>
             ) : (
-              <span className="text-zinc-900">{crumb.label}</span>
+              <span className="truncate text-zinc-900">{crumb.label}</span>
             )}
           </span>
         ))}
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-2 sm:gap-3">
         <Link
           href="/settings"
-          className="rounded-md p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600"
+          className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600"
           title="Settings"
         >
           <Settings size={18} />
@@ -37,9 +37,10 @@ export default function Navbar({ breadcrumbs }: NavbarProps) {
         <form action={leaveWorkspace}>
           <button
             type="submit"
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm transition-colors hover:bg-zinc-100"
+            className="rounded-lg border border-zinc-200 px-3 py-1.5 text-sm transition-all hover:bg-zinc-50 active:scale-[0.98]"
           >
-            Exit Workspace
+            <span className="hidden sm:inline">Exit Workspace</span>
+            <span className="sm:hidden">Exit</span>
           </button>
         </form>
       </div>

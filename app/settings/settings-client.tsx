@@ -15,9 +15,9 @@ export default function SettingsClient({ hasPassword, createdAt }: SettingsClien
   const [isDeleting, startDelete] = useTransition();
 
   return (
-    <div className="mt-8 space-y-8">
+    <div className="mt-8 space-y-6 sm:space-y-8">
       {/* Workspace info */}
-      <div className="rounded-lg border border-zinc-200 p-5">
+      <div className="rounded-xl border border-zinc-200 p-4 sm:p-5">
         <h2 className="font-semibold">Workspace Info</h2>
         <div className="mt-3 space-y-2 text-sm">
           <div className="flex justify-between">
@@ -34,7 +34,7 @@ export default function SettingsClient({ hasPassword, createdAt }: SettingsClien
       </div>
 
       {/* Password section */}
-      <div className="rounded-lg border border-zinc-200 p-5">
+      <div className="rounded-xl border border-zinc-200 p-4 sm:p-5">
         <h2 className="font-semibold">
           {hasPassword ? "Change or Remove Password" : "Set a Password"}
         </h2>
@@ -52,7 +52,7 @@ export default function SettingsClient({ hasPassword, createdAt }: SettingsClien
                 type="password"
                 name="currentPassword"
                 required={hasPassword}
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-4 py-2 focus:border-zinc-500 focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-zinc-200 px-4 py-2.5 transition-colors focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:outline-none sm:py-2"
               />
             </div>
           )}
@@ -66,7 +66,7 @@ export default function SettingsClient({ hasPassword, createdAt }: SettingsClien
             <input
               type="password"
               name="newPassword"
-              className="mt-1 w-full rounded-lg border border-zinc-300 px-4 py-2 focus:border-zinc-500 focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-zinc-200 px-4 py-2.5 transition-colors focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:outline-none sm:py-2"
             />
           </div>
 
@@ -76,7 +76,7 @@ export default function SettingsClient({ hasPassword, createdAt }: SettingsClien
           <button
             type="submit"
             disabled={isPending}
-            className="rounded-lg bg-zinc-900 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 disabled:opacity-50"
+            className="rounded-xl bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white transition-all hover:bg-zinc-700 active:scale-[0.98] disabled:opacity-50 sm:py-2"
           >
             {isPending ? "Saving..." : hasPassword ? "Update Password" : "Set Password"}
           </button>
@@ -84,7 +84,7 @@ export default function SettingsClient({ hasPassword, createdAt }: SettingsClien
       </div>
 
       {/* Danger zone */}
-      <div className="rounded-lg border border-red-200 p-5">
+      <div className="rounded-xl border border-red-200 p-4 sm:p-5">
         <h2 className="font-semibold text-red-600">Danger Zone</h2>
         <p className="mt-1 text-sm text-zinc-500">
           Permanently delete this workspace and all its projects, boards, and data. This cannot be
@@ -97,7 +97,7 @@ export default function SettingsClient({ hasPassword, createdAt }: SettingsClien
             }
           }}
           disabled={isDeleting}
-          className="mt-4 rounded-lg border border-red-300 px-5 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+          className="mt-4 rounded-xl border border-red-300 px-5 py-2.5 text-sm font-medium text-red-600 transition-all hover:bg-red-50 active:scale-[0.98] disabled:opacity-50 sm:py-2"
         >
           {isDeleting ? "Deleting..." : "Delete Workspace"}
         </button>

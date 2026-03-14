@@ -71,8 +71,8 @@ export default function ExcalidrawBoard({ boardId, initialData }: ExcalidrawBoar
         onChange={handleChange}
       />
 
-      {/* Save status — bottom right */}
-      <div className="pointer-events-none absolute z-10" style={{ bottom: 15, right: 60 }}>
+      {/* Save status — bottom-right */}
+      <div className="pointer-events-none absolute right-3 bottom-[70px] z-10 md:right-[60px] md:bottom-[15px]">
         <div
           className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs"
           style={{

@@ -1,20 +1,24 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-export async function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const keyHash = request.cookies.get("keyHash")?.value;
   const { pathname } = request.nextUrl;
 
   // Allow home page always
   if (pathname === "/") {
-    // If already logged in, redirect to dashboard
     if (keyHash) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
     return NextResponse.next();
   }
 
-  // Protected routes: redirect to home if no key
+  // Board pages are publicly accessible (embeddable URLs)
+  if (pathname.startsWith("/board/")) {
+    return NextResponse.next();
+  }
+
+  // All other routes require auth
   if (!keyHash) {
     return NextResponse.redirect(new URL("/", request.url));
   }

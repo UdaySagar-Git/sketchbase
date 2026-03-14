@@ -26,31 +26,31 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
       <Navbar
         breadcrumbs={[{ label: project.emoji ? `${project.emoji} ${project.name}` : project.name }]}
       />
-      <div className="mx-auto max-w-5xl px-6 py-8">
+      <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
         <h1 className="text-2xl font-bold">
           {project.emoji && <span className="mr-2">{project.emoji}</span>}
           {project.name}
         </h1>
 
         {/* New Board Form */}
-        <form action={createBoard} className="mt-6 flex gap-3">
+        <form action={createBoard} className="mt-6 flex flex-col gap-3 sm:flex-row">
           <input type="hidden" name="projectId" value={id} />
           <input
             type="text"
             name="name"
             placeholder="Board name"
             required
-            className="flex-1 rounded-lg border border-zinc-300 px-4 py-2 focus:border-zinc-500 focus:outline-none"
+            className="min-w-0 flex-1 rounded-xl border border-zinc-200 px-4 py-2.5 transition-colors focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:outline-none sm:py-2"
           />
           <input
             type="password"
             name="password"
             placeholder="Password (optional)"
-            className="w-48 rounded-lg border border-zinc-300 px-4 py-2 focus:border-zinc-500 focus:outline-none"
+            className="rounded-xl border border-zinc-200 px-4 py-2.5 transition-colors focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:outline-none sm:w-48 sm:py-2"
           />
           <button
             type="submit"
-            className="rounded-lg bg-zinc-900 px-5 py-2 font-medium text-white transition-colors hover:bg-zinc-700"
+            className="rounded-xl bg-zinc-900 px-5 py-2.5 font-medium text-white transition-all hover:bg-zinc-700 active:scale-[0.98] sm:py-2"
           >
             New Board
           </button>
@@ -70,7 +70,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
         </div>
 
         {project.boards.length === 0 && (
-          <p className="mt-12 text-center text-zinc-400">
+          <p className="mt-16 text-center text-zinc-400">
             No boards yet. Create one above to start drawing.
           </p>
         )}
