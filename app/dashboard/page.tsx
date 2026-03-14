@@ -55,15 +55,22 @@ export default async function DashboardPage() {
 
         {/* Projects Grid */}
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {workspace.projects.map((project) => (
-            <ProjectCard
-              key={project.id}
-              id={project.id}
-              name={project.name}
-              emoji={project.emoji}
-              boardCount={project._count.boards}
-            />
-          ))}
+          {workspace.projects.map(
+            (project: {
+              id: string;
+              name: string;
+              emoji: string | null;
+              _count: { boards: number };
+            }) => (
+              <ProjectCard
+                key={project.id}
+                id={project.id}
+                name={project.name}
+                emoji={project.emoji}
+                boardCount={project._count.boards}
+              />
+            )
+          )}
         </div>
 
         {workspace.projects.length === 0 && (
