@@ -241,13 +241,13 @@ export default function EmojiPicker({ value, onChange }: EmojiPickerProps) {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex h-11 w-14 items-center justify-center rounded-xl border border-zinc-200 bg-white text-xl transition-all hover:border-zinc-300 hover:shadow-sm active:scale-95 sm:h-10"
+        className="flex h-9 w-14 items-center justify-center rounded-lg border border-zinc-200 bg-white text-xl transition-colors duration-150 hover:bg-zinc-50"
       >
         {value || "📁"}
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 z-50 mt-2 w-72 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl shadow-black/8 sm:w-80">
+        <div className="absolute top-full left-0 z-50 mt-2 w-72 overflow-hidden rounded-xl border border-zinc-200/60 bg-white/80 shadow-lg backdrop-blur-xl sm:w-80">
           {/* Category tabs */}
           <div className="flex gap-0.5 border-b border-zinc-100 px-2 pt-2 pb-1">
             {EMOJI_CATEGORIES.map((cat, i) => (
@@ -255,10 +255,8 @@ export default function EmojiPicker({ value, onChange }: EmojiPickerProps) {
                 key={cat.label}
                 type="button"
                 onClick={() => setActiveTab(i)}
-                className={`flex-1 rounded-lg px-1 py-1.5 text-center text-sm transition-all ${
-                  activeTab === i
-                    ? "bg-violet-50 shadow-sm ring-1 ring-violet-200"
-                    : "hover:bg-zinc-50"
+                className={`flex-1 rounded-lg px-1 py-1.5 text-center text-sm transition-colors duration-150 ${
+                  activeTab === i ? "bg-zinc-100" : "hover:bg-zinc-50"
                 }`}
                 title={cat.label}
               >
@@ -284,7 +282,7 @@ export default function EmojiPicker({ value, onChange }: EmojiPickerProps) {
                   onChange(emoji);
                   setOpen(false);
                 }}
-                className="flex aspect-square items-center justify-center rounded-lg text-xl transition-all hover:scale-110 hover:bg-violet-50 active:scale-95"
+                className="flex aspect-square items-center justify-center rounded-lg text-xl transition-colors duration-150 hover:bg-zinc-100"
               >
                 {emoji}
               </button>

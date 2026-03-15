@@ -15,7 +15,7 @@ export default async function SettingsPage() {
     <div className="min-h-screen">
       <Navbar breadcrumbs={[{ label: "Settings" }]} />
       <div className="mx-auto max-w-lg px-4 py-6 sm:px-6 sm:py-10">
-        <h1 className="text-2xl font-bold">Workspace Settings</h1>
+        <h1 className="text-lg font-medium">Workspace Settings</h1>
         <p className="mt-1 text-sm text-zinc-500">
           Manage your workspace security and preferences.
         </p>

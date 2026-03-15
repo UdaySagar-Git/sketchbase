@@ -14,11 +14,11 @@ interface ProjectCardProps {
 
 export default function ProjectCard({ id, name, emoji, boardCount }: ProjectCardProps) {
   return (
-    <div className="group relative rounded-xl border border-zinc-200 p-5 transition-all hover:border-zinc-300 hover:shadow-md hover:shadow-black/5 sm:p-6">
+    <div className="group relative rounded-xl border border-zinc-200 p-5 transition-colors duration-150 hover:bg-zinc-50 sm:p-6">
       <Link href={`/project/${id}`} className="block">
         <div className="text-3xl">{emoji || "📁"}</div>
-        <h3 className="mt-3 font-semibold">{name}</h3>
-        <p className="mt-1 text-sm text-zinc-500">
+        <h3 className="mt-3 text-sm font-medium">{name}</h3>
+        <p className="mt-1 text-xs text-zinc-400">
           {boardCount} {boardCount === 1 ? "board" : "boards"}
         </p>
       </Link>
@@ -28,7 +28,7 @@ export default function ProjectCard({ id, name, emoji, boardCount }: ProjectCard
             deleteProject(id);
           }
         }}
-        className="absolute top-3 right-3 rounded-lg p-1.5 text-zinc-400 opacity-0 transition-all group-hover:opacity-100 hover:bg-red-50 hover:text-red-500"
+        className="absolute top-3 right-3 rounded-lg p-1.5 text-zinc-400 opacity-0 transition-colors duration-150 group-hover:opacity-100 hover:bg-zinc-100 hover:text-red-500"
       >
         <Trash size={16} />
       </button>

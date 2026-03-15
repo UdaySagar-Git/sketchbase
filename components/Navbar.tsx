@@ -9,8 +9,8 @@ interface NavbarProps {
 export default function Navbar({ breadcrumbs }: NavbarProps) {
   return (
     <nav className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 sm:px-6">
-      <div className="flex min-w-0 items-center gap-1.5 text-sm sm:gap-2">
-        <Link href="/dashboard" className="shrink-0 text-lg font-bold">
+      <div className="flex min-w-0 items-center gap-1.5 text-xs sm:gap-2">
+        <Link href="/dashboard" className="shrink-0 text-sm font-medium">
           Sketchbase
         </Link>
         {breadcrumbs?.map((crumb, i) => (
@@ -29,7 +29,7 @@ export default function Navbar({ breadcrumbs }: NavbarProps) {
       <div className="flex shrink-0 items-center gap-2 sm:gap-3">
         <Link
           href="/settings"
-          className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600"
+          className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-zinc-50 hover:text-zinc-600"
           title="Settings"
         >
           <Settings size={18} />
@@ -37,7 +37,7 @@ export default function Navbar({ breadcrumbs }: NavbarProps) {
         <form action={leaveWorkspace}>
           <button
             type="submit"
-            className="rounded-lg border border-zinc-200 px-3 py-1.5 text-sm transition-all hover:bg-zinc-50 active:scale-[0.98]"
+            className="rounded-lg bg-zinc-100 px-3 py-1.5 text-xs text-zinc-700 transition-colors hover:bg-zinc-200"
           >
             <span className="hidden sm:inline">Exit Workspace</span>
             <span className="sm:hidden">Exit</span>

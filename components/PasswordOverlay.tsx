@@ -31,11 +31,11 @@ export default function PasswordOverlay({ boardId, onUnlock }: PasswordOverlayPr
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 px-4 backdrop-blur-sm">
       <form
         onSubmit={handleSubmit}
-        className="flex w-full max-w-sm flex-col gap-4 rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl shadow-black/5 sm:p-8"
+        className="flex w-full max-w-sm flex-col gap-4 rounded-xl border border-zinc-200 bg-white p-6 shadow-lg sm:p-8"
       >
         <div className="text-center">
           <div className="text-3xl">🔒</div>
-          <h2 className="mt-2 text-lg font-semibold">This board is protected</h2>
+          <h2 className="mt-2 text-base font-medium">This board is protected</h2>
           <p className="text-sm text-zinc-500">Enter the password to view this board</p>
         </div>
 
@@ -46,7 +46,7 @@ export default function PasswordOverlay({ boardId, onUnlock }: PasswordOverlayPr
           placeholder="Board password"
           required
           autoFocus
-          className="rounded-xl border border-zinc-200 px-4 py-3 transition-colors focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:outline-none"
+          className="rounded-lg border border-zinc-200 px-4 py-2 text-sm transition-colors focus:ring-1 focus:ring-zinc-300 focus:outline-none"
         />
 
         {error && <p className="text-center text-sm text-red-500">{error}</p>}
@@ -54,7 +54,7 @@ export default function PasswordOverlay({ boardId, onUnlock }: PasswordOverlayPr
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-xl bg-zinc-900 py-3 font-medium text-white transition-all hover:bg-zinc-700 active:scale-[0.98] disabled:opacity-50"
+          className="rounded-lg bg-zinc-900 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 disabled:opacity-50"
         >
           {isPending ? "Checking..." : "Unlock"}
         </button>

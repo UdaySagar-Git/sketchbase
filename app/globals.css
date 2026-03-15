@@ -9,8 +9,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-inter);
 }
 
 body {
@@ -31,7 +31,7 @@ body {
 }
 
 .skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, #f4f4f5 25%, #e4e4e7 50%, #f4f4f5 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
   border-radius: 6px;
@@ -40,4 +40,10 @@ body {
 /* Smooth scrolling on iOS */
 .overflow-y-auto {
   -webkit-overflow-scrolling: touch;
+}
+
+/* Dot grid background */
+.dot-grid {
+  background-image: radial-gradient(circle, #e4e4e7 0.5px, transparent 0.5px);
+  background-size: 32px 32px;
 }

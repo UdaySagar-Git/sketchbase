@@ -25,7 +25,7 @@ export default async function DashboardPage() {
     <div className="min-h-screen">
       <Navbar />
       <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
-        <h1 className="text-2xl font-bold">My Projects</h1>
+        <h1 className="text-lg font-medium">My Projects</h1>
 
         <NewProjectForm />
 

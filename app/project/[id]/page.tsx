@@ -27,7 +27,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
         breadcrumbs={[{ label: project.emoji ? `${project.emoji} ${project.name}` : project.name }]}
       />
       <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
-        <h1 className="text-2xl font-bold">
+        <h1 className="text-lg font-medium">
           {project.emoji && <span className="mr-2">{project.emoji}</span>}
           {project.name}
         </h1>
@@ -40,17 +40,17 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
             name="name"
             placeholder="Board name"
             required
-            className="min-w-0 flex-1 rounded-xl border border-zinc-200 px-4 py-2.5 transition-colors focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:outline-none sm:py-2"
+            className="min-w-0 flex-1 rounded-lg border border-zinc-200 px-4 py-2 text-sm transition-colors focus:ring-1 focus:ring-zinc-300 focus:outline-none"
           />
           <input
             type="password"
             name="password"
             placeholder="Password (optional)"
-            className="rounded-xl border border-zinc-200 px-4 py-2.5 transition-colors focus:border-violet-400 focus:ring-2 focus:ring-violet-100 focus:outline-none sm:w-48 sm:py-2"
+            className="rounded-lg border border-zinc-200 px-4 py-2 text-sm transition-colors focus:ring-1 focus:ring-zinc-300 focus:outline-none sm:w-48"
           />
           <button
             type="submit"
-            className="rounded-xl bg-zinc-900 px-5 py-2.5 font-medium text-white transition-all hover:bg-zinc-700 active:scale-[0.98] sm:py-2"
+            className="rounded-lg bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-zinc-700"
           >
             New Board
           </button>

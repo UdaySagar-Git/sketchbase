@@ -121,7 +121,7 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
         style={{ width: 24, height: 24 }}
         title="Navigator"
       >
-        <Grid size={15} className={open ? "text-[#6965db]" : "text-zinc-500"} />
+        <Grid size={15} className={open ? "text-zinc-900" : "text-zinc-500"} />
       </button>
 
       {/* Dropdown panel — full-width on mobile, fixed-width on desktop */}
@@ -142,9 +142,7 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
               Navigator
             </span>
             <div className="flex items-center gap-2">
-              {isPending && (
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-violet-400" />
-              )}
+              {isPending && <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-zinc-400" />}
               <button
                 onClick={() => {
                   setOpen(false);
@@ -246,7 +244,7 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
                       return (
                         <div
                           key={board.id}
-                          className={`group flex items-center gap-1.5 rounded-lg px-2 py-1.5 sm:py-1 ${isActive ? "bg-violet-50 text-violet-700" : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-700"}`}
+                          className={`group flex items-center gap-1.5 rounded-lg px-2 py-1.5 sm:py-1 ${isActive ? "bg-zinc-100 text-zinc-900" : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-700"}`}
                         >
                           <Link
                             href={`/board/${board.id}`}
@@ -289,7 +287,7 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
                           }}
                           placeholder="Board name..."
                           autoFocus
-                          className="flex-1 rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-xs focus:border-violet-400 focus:outline-none sm:py-1"
+                          className="flex-1 rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-xs focus:ring-1 focus:ring-zinc-300 focus:outline-none sm:py-1"
                         />
                       </div>
                     )}
@@ -322,7 +320,7 @@ export default function BoardSidebar({ onToggle }: { onToggle?: (open: boolean) 
                   }}
                   placeholder="Project name..."
                   autoFocus
-                  className="flex-1 rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-xs focus:border-violet-400 focus:outline-none sm:py-1"
+                  className="flex-1 rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-xs focus:ring-1 focus:ring-zinc-300 focus:outline-none sm:py-1"
                 />
               </div>
             ) : (

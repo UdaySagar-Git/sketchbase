@@ -277,13 +277,13 @@ export default function TabBar({
               <div className="flex shrink-0 items-center gap-1.5 text-[11px]">
                 {saveStatus === "saving" && (
                   <>
-                    <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-violet-500" />
+                    <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-zinc-500" />
                     <span className="text-zinc-400">{MSG_SAVING}</span>
                   </>
                 )}
                 {saveStatus === "saved" && (
                   <>
-                    <Check size={10} className="text-green-500" />
+                    <Check size={10} className="text-emerald-500" />
                     <span className="text-zinc-400">{MSG_SAVED}</span>
                   </>
                 )}
@@ -341,7 +341,7 @@ export default function TabBar({
                   isActive
                     ? "bg-zinc-100 font-medium text-zinc-900"
                     : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-700"
-                } ${dragOverTabId === tab.id ? "ring-2 ring-violet-400" : ""}`}
+                } ${dragOverTabId === tab.id ? "ring-2 ring-zinc-400" : ""}`}
               >
                 <Icon size={13} />
                 {editingTabId === tab.id ? (
