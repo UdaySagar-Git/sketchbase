@@ -1,0 +1,26 @@
+diff --git a/dist-cjs/lib/license/LicenseManager.js b/dist-cjs/lib/license/LicenseManager.js
+index 0c139919dee38d439fd066d1ee61472f4336e282..ef24c96e9ef2c250b8e5799e4d01e17d1e60c03d 100644
+--- a/dist-cjs/lib/license/LicenseManager.js
++++ b/dist-cjs/lib/license/LicenseManager.js
+@@ -82,7 +82,7 @@ class LicenseManager {
+     });
+   }
+   getIsDevelopment() {
+-    return !["https:", "vscode-webview:"].includes(window.location.protocol) || window.location.hostname === "localhost" || process.env.NODE_ENV !== "production";
++    return true;
+   }
+   getTrackType(result, licenseState) {
+     if (licenseState === "unlicensed-production") {
+diff --git a/dist-esm/lib/license/LicenseManager.mjs b/dist-esm/lib/license/LicenseManager.mjs
+index 2dc2d8989141aa72ec67c2290eaccb71832d662f..5b9221b5ee883d0768e1507be854fde4b10ddb6f 100644
+--- a/dist-esm/lib/license/LicenseManager.mjs
++++ b/dist-esm/lib/license/LicenseManager.mjs
+@@ -56,7 +56,7 @@ class LicenseManager {
+     });
+   }
+   getIsDevelopment() {
+-    return !["https:", "vscode-webview:"].includes(window.location.protocol) || window.location.hostname === "localhost" || process.env.NODE_ENV !== "production";
++    return true;
+   }
+   getTrackType(result, licenseState) {
+     if (licenseState === "unlicensed-production") {

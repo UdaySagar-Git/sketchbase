@@ -8,7 +8,10 @@
       "prisma",
       "sharp",
       "unrs-resolver"
-    ]
+    ],
+    "patchedDependencies": {
+      "@tldraw/editor@4.4.1": "patches/@tldraw__editor@4.4.1.patch"
+    }
   },
   "scripts": {
     "dev": "next dev",
