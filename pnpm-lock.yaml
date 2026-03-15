@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   '@tldraw/editor@4.4.1':
-    hash: 56ce92e1aeb4ab6a1821237c0c118b966353324032ad63b57a84972b9cd98e3c
+    hash: 659a50aba3b7f3279035f4b8ad4aa9abd1dbe02099e3fb268359e774512c9a64
     path: patches/@tldraw__editor@4.4.1.patch
 
 importers:
@@ -7464,7 +7464,7 @@ snapshots:
       '@tiptap/extensions': 3.20.1(@tiptap/core@3.20.1(@tiptap/pm@3.20.1))(@tiptap/pm@3.20.1)
       '@tiptap/pm': 3.20.1
 
-  '@tldraw/editor@4.4.1(patch_hash=56ce92e1aeb4ab6a1821237c0c118b966353324032ad63b57a84972b9cd98e3c)(@floating-ui/dom@1.7.6)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+  '@tldraw/editor@4.4.1(patch_hash=659a50aba3b7f3279035f4b8ad4aa9abd1dbe02099e3fb268359e774512c9a64)(@floating-ui/dom@1.7.6)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
       '@tiptap/core': 3.20.1(@tiptap/pm@3.20.1)
       '@tiptap/pm': 3.20.1
@@ -11063,7 +11063,7 @@ snapshots:
       '@tiptap/pm': 3.20.1
       '@tiptap/react': 3.20.1(@floating-ui/dom@1.7.6)(@tiptap/core@3.20.1(@tiptap/pm@3.20.1))(@tiptap/pm@3.20.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@tiptap/starter-kit': 3.20.1
-      '@tldraw/editor': 4.4.1(patch_hash=56ce92e1aeb4ab6a1821237c0c118b966353324032ad63b57a84972b9cd98e3c)(@floating-ui/dom@1.7.6)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@tldraw/editor': 4.4.1(patch_hash=659a50aba3b7f3279035f4b8ad4aa9abd1dbe02099e3fb268359e774512c9a64)(@floating-ui/dom@1.7.6)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@tldraw/store': 4.4.1(react@19.2.3)
       classnames: 2.5.1
       hotkeys-js: 3.13.15

@@ -1,5 +1,5 @@
 diff --git a/dist-cjs/lib/license/LicenseManager.js b/dist-cjs/lib/license/LicenseManager.js
-index 0c139919dee38d439fd066d1ee61472f4336e282..d2beaaf1ca0618554b2bf5d813fc712b1bec03d1 100644
+index 0c139919dee38d439fd066d1ee61472f4336e282..7a2c5fdd73d82a3b1dc34d7c9e1e5ce1250852d1 100644
 --- a/dist-cjs/lib/license/LicenseManager.js
 +++ b/dist-cjs/lib/license/LicenseManager.js
 @@ -82,7 +82,7 @@ class LicenseManager {
@@ -11,7 +11,32 @@ index 0c139919dee38d439fd066d1ee61472f4336e282..d2beaaf1ca0618554b2bf5d813fc712b
    }
    getTrackType(result, licenseState) {
      if (licenseState === "unlicensed-production") {
-@@ -324,7 +324,7 @@ class LicenseManager {
+@@ -103,23 +103,7 @@ class LicenseManager {
+     return null;
+   }
+   maybeTrack(result, licenseState) {
+-    const trackType = this.getTrackType(result, licenseState);
+-    if (!trackType) {
+-      return;
+-    }
+-    const url = new URL(WATERMARK_TRACK_SRC);
+-    url.searchParams.set("version", import_version.version);
+-    url.searchParams.set("license_type", trackType);
+-    if ("license" in result) {
+-      url.searchParams.set("license_id", result.license.id);
+-      const sku = this.isFlagEnabled(result.license.flags, FLAGS.EVALUATION_LICENSE) ? "evaluation" : this.isFlagEnabled(result.license.flags, FLAGS.ANNUAL_LICENSE) ? "annual" : this.isFlagEnabled(result.license.flags, FLAGS.PERPETUAL_LICENSE) ? "perpetual" : "unknown";
+-      url.searchParams.set("sku", sku);
+-    }
+-    url.searchParams.set("url", window.location.href);
+-    if (process.env.NODE_ENV) {
+-      url.searchParams.set("environment", process.env.NODE_ENV);
+-    }
+-    fetch(url.toString());
++    return;
+   }
+   async extractLicenseKey(licenseKey) {
+     const [data, signature] = licenseKey.split(".");
+@@ -324,7 +308,7 @@ class LicenseManager {
  function getLicenseState(result, outputMessages, isDevelopment) {
    if (!result.isLicenseParseable) {
      if (isDevelopment) {
@@ -21,7 +46,7 @@ index 0c139919dee38d439fd066d1ee61472f4336e282..d2beaaf1ca0618554b2bf5d813fc712b
      if (result.reason === "no-key-provided") {
        outputMessages([
 diff --git a/dist-esm/lib/license/LicenseManager.mjs b/dist-esm/lib/license/LicenseManager.mjs
-index 2dc2d8989141aa72ec67c2290eaccb71832d662f..9d864296eb5f8a82b100cac8c420648856491f13 100644
+index 2dc2d8989141aa72ec67c2290eaccb71832d662f..8017753aae9bf74b53d1aad0b7c6d310b0c7c9fb 100644
 --- a/dist-esm/lib/license/LicenseManager.mjs
 +++ b/dist-esm/lib/license/LicenseManager.mjs
 @@ -56,7 +56,7 @@ class LicenseManager {
@@ -33,7 +58,32 @@ index 2dc2d8989141aa72ec67c2290eaccb71832d662f..9d864296eb5f8a82b100cac8c4206488
    }
    getTrackType(result, licenseState) {
      if (licenseState === "unlicensed-production") {
-@@ -298,7 +298,7 @@ class LicenseManager {
+@@ -77,23 +77,7 @@ class LicenseManager {
+     return null;
+   }
+   maybeTrack(result, licenseState) {
+-    const trackType = this.getTrackType(result, licenseState);
+-    if (!trackType) {
+-      return;
+-    }
+-    const url = new URL(WATERMARK_TRACK_SRC);
+-    url.searchParams.set("version", version);
+-    url.searchParams.set("license_type", trackType);
+-    if ("license" in result) {
+-      url.searchParams.set("license_id", result.license.id);
+-      const sku = this.isFlagEnabled(result.license.flags, FLAGS.EVALUATION_LICENSE) ? "evaluation" : this.isFlagEnabled(result.license.flags, FLAGS.ANNUAL_LICENSE) ? "annual" : this.isFlagEnabled(result.license.flags, FLAGS.PERPETUAL_LICENSE) ? "perpetual" : "unknown";
+-      url.searchParams.set("sku", sku);
+-    }
+-    url.searchParams.set("url", window.location.href);
+-    if (process.env.NODE_ENV) {
+-      url.searchParams.set("environment", process.env.NODE_ENV);
+-    }
+-    fetch(url.toString());
++    return;
+   }
+   async extractLicenseKey(licenseKey) {
+     const [data, signature] = licenseKey.split(".");
+@@ -298,7 +282,7 @@ class LicenseManager {
  function getLicenseState(result, outputMessages, isDevelopment) {
    if (!result.isLicenseParseable) {
      if (isDevelopment) {
