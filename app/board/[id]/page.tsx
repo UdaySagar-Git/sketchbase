@@ -12,6 +12,9 @@ export default async function BoardPage({ params }: { params: Promise<{ id: stri
       project: {
         include: { workspace: true },
       },
+      tabs: {
+        orderBy: { order: "asc" },
+      },
     },
   });
 
@@ -21,14 +24,33 @@ export default async function BoardPage({ params }: { params: Promise<{ id: stri
   const isOwner = !!keyHash && board.project.workspace.keyHash === keyHash;
   const isLocked = !!board.passHash;
 
-  // Only serve board content if:
-  // - Board is public (no password), OR
-  // - User is the workspace owner, OR
-  // - Board has been unlocked via password (server-side cookie)
-  let initialData: Record<string, unknown> | null = null;
-  if (!isLocked || isOwner || (await isBoardUnlocked(id))) {
-    initialData = board.content as Record<string, unknown> | null;
+  const hasAccess = !isLocked || isOwner || (await isBoardUnlocked(id));
+
+  // If board has no tabs yet, create a default Excalidraw tab
+  // migrating existing board.content into it
+  let tabs = board.tabs;
+  if (hasAccess && tabs.length === 0) {
+    const defaultTab = await prisma.tab.create({
+      data: {
+        name: "Drawing",
+        type: "EXCALIDRAW",
+        boardId: id,
+        order: 0,
+        content: board.content ?? undefined,
+      },
+    });
+    tabs = [defaultTab];
   }
+
+  const initialTabs = hasAccess
+    ? tabs.map((t) => ({
+        id: t.id,
+        name: t.name,
+        type: t.type,
+        order: t.order,
+        content: t.content,
+      }))
+    : [];
 
   return (
     <BoardClient
@@ -37,7 +59,7 @@ export default async function BoardPage({ params }: { params: Promise<{ id: stri
       projectName={board.project.name}
       projectEmoji={board.project.emoji}
       projectId={board.projectId}
-      initialData={initialData}
+      initialTabs={initialTabs}
       isLocked={isLocked && !isOwner && !(await isBoardUnlocked(id))}
       isOwner={isOwner}
     />

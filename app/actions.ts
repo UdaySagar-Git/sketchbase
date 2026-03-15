@@ -22,7 +22,9 @@ import {
   MSG_PASSWORD_REMOVED,
   MSG_PROJECT_NAME_REQUIRED,
   MSG_BOARD_NAME_REQUIRED,
+  MSG_TAB_NAME_REQUIRED,
 } from "@/lib/messages";
+import type { TabType } from "@prisma/client";
 
 // --- Auth ---
 
@@ -371,4 +373,89 @@ export async function verifyBoardPassword(boardId: string, password: string) {
 
   await setBoardUnlocked(boardId);
   return { success: true };
+}
+
+// --- Tabs ---
+
+export async function createTab(boardId: string, type: TabType, name: string) {
+  await verifyBoardAccess(boardId);
+
+  if (!name || name.trim().length === 0) {
+    throw new Error(MSG_TAB_NAME_REQUIRED);
+  }
+
+  const maxOrder = await prisma.tab.aggregate({
+    where: { boardId },
+    _max: { order: true },
+  });
+
+  const tab = await prisma.tab.create({
+    data: {
+      name: name.trim(),
+      type,
+      boardId,
+      order: (maxOrder._max.order ?? -1) + 1,
+    },
+  });
+
+  revalidatePath(`/board/${boardId}`);
+  return tab;
+}
+
+export async function deleteTab(id: string) {
+  const tab = await prisma.tab.findUnique({
+    where: { id },
+    include: { board: { include: { project: { include: { workspace: true } } } } },
+  });
+  if (!tab) throw new Error("Tab not found");
+
+  // Verify access
+  await verifyBoardAccess(tab.boardId);
+
+  // Don't allow deleting the last tab
+  const count = await prisma.tab.count({ where: { boardId: tab.boardId } });
+  if (count <= 1) throw new Error("Cannot delete the last tab");
+
+  await prisma.tab.delete({ where: { id } });
+  revalidatePath(`/board/${tab.boardId}`);
+}
+
+export async function renameTab(id: string, name: string) {
+  if (!name || name.trim().length === 0) {
+    throw new Error(MSG_TAB_NAME_REQUIRED);
+  }
+
+  const tab = await prisma.tab.findUnique({ where: { id } });
+  if (!tab) throw new Error("Tab not found");
+
+  await verifyBoardAccess(tab.boardId);
+
+  await prisma.tab.update({
+    where: { id },
+    data: { name: name.trim() },
+  });
+
+  revalidatePath(`/board/${tab.boardId}`);
+}
+
+export async function saveTab(id: string, content: unknown) {
+  const tab = await prisma.tab.findUnique({ where: { id } });
+  if (!tab) throw new Error("Tab not found");
+
+  await verifyBoardAccess(tab.boardId);
+
+  await prisma.tab.update({
+    where: { id },
+    data: { content: content as object },
+  });
+}
+
+export async function reorderTabs(boardId: string, orderedIds: string[]) {
+  await verifyBoardAccess(boardId);
+
+  await prisma.$transaction(
+    orderedIds.map((id, index) => prisma.tab.update({ where: { id }, data: { order: index } }))
+  );
+
+  revalidatePath(`/board/${boardId}`);
 }

@@ -2,6 +2,14 @@
   "name": "sketchbase",
   "version": "0.1.0",
   "private": true,
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/engines",
+      "prisma",
+      "sharp",
+      "unrs-resolver"
+    ]
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -11,18 +19,27 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "type-check": "tsc --noEmit",
-    "validate": "npm run type-check && npm run lint && npm run format:check && npm run build",
+    "validate": "pnpm type-check && pnpm lint && pnpm format:check && pnpm build",
     "prepare": "husky",
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@blocknote/core": "^0.47.1",
+    "@blocknote/mantine": "^0.47.1",
+    "@blocknote/react": "^0.47.1",
     "@excalidraw/excalidraw": "^0.18.0",
+    "@mantine/core": "^8.3.17",
+    "@mantine/hooks": "^8.3.17",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
+    "markmap-common": "^0.18.9",
+    "markmap-lib": "^0.18.12",
+    "markmap-view": "^0.18.12",
     "next": "16.1.6",
     "pg": "^8.20.0",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "tldraw": "^4.4.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.4.4",

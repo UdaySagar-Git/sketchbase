@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const keyHash = request.cookies.get("keyHash")?.value;
   const { pathname } = request.nextUrl;
 
@@ -17,10 +17,7 @@ export function middleware(request: NextRequest) {
   if (pathname.startsWith("/board/")) {
     const response = NextResponse.next();
     // Allow embedding in any origin (overrides any upstream X-Frame-Options)
-    response.headers.set(
-      "Content-Security-Policy",
-      "frame-ancestors *"
-    );
+    response.headers.set("Content-Security-Policy", "frame-ancestors *");
     response.headers.delete("X-Frame-Options");
     return response;
   }

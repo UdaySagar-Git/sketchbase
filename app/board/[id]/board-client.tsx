@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import ExcalidrawBoard from "@/components/ExcalidrawBoard";
+import { useState, useCallback } from "react";
+import dynamic from "next/dynamic";
 import PasswordOverlay from "@/components/PasswordOverlay";
-import BoardSidebar from "@/components/BoardSidebar";
-import { islandStyle } from "@/lib/styles";
-import { Home } from "@/components/icons";
+import TabBar, { type TabData } from "@/components/TabBar";
+
+// Dynamic imports for all tab editors (SSR disabled)
+const ExcalidrawTab = dynamic(() => import("@/components/tabs/ExcalidrawTab"), { ssr: false });
+const BlockNoteTab = dynamic(() => import("@/components/tabs/BlockNoteTab"), { ssr: false });
+const TldrawTab = dynamic(() => import("@/components/tabs/TldrawTab"), { ssr: false });
+const MindmapTab = dynamic(() => import("@/components/tabs/MindmapTab"), { ssr: false });
 
 interface BoardClientProps {
   boardId: string;
@@ -14,7 +17,7 @@ interface BoardClientProps {
   projectName: string;
   projectEmoji: string | null;
   projectId: string;
-  initialData: Record<string, unknown> | null;
+  initialTabs: TabData[];
   isLocked: boolean;
   isOwner: boolean;
 }
@@ -25,20 +28,29 @@ export default function BoardClient({
   projectName,
   projectEmoji,
   projectId,
-  initialData,
+  initialTabs,
   isLocked,
   isOwner,
 }: BoardClientProps) {
-  const [unlocked, setUnlocked] = useState(!isLocked);
-  const [boardData, setBoardData] = useState(initialData);
+  const [unlocked] = useState(!isLocked);
+  const [tabs, setTabs] = useState<TabData[]>(initialTabs);
+  const [activeTabId, setActiveTabId] = useState<string>(initialTabs[0]?.id ?? "");
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
+  const handleSaveStatus = useCallback((status: "idle" | "saving" | "saved" | "error") => {
+    setSaveStatus(status);
+    if (status === "saved") {
+      setLastSaved(new Date());
+    }
+  }, []);
 
   if (!unlocked) {
     return (
       <PasswordOverlay
         boardId={boardId}
-        onUnlock={(content) => {
-          setBoardData(content);
-          setUnlocked(true);
+        onUnlock={() => {
+          window.location.reload();
         }}
       />
     );
@@ -46,42 +58,61 @@ export default function BoardClient({
 
   return (
     <div className="h-screen w-screen">
-      {/* Breadcrumb island — bottom-left on mobile, top-left on desktop */}
-      <div
-        className="pointer-events-auto absolute bottom-[70px] left-3 z-20 flex items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] sm:gap-2 sm:rounded-xl sm:px-2.5 sm:py-1.5 sm:text-xs md:top-[15px] md:bottom-auto md:left-[60px]"
-        style={islandStyle}
-      >
-        {/* Navigator — only for workspace owners */}
-        {isOwner && (
-          <>
-            <BoardSidebar />
-            <div className="hidden h-4 w-px bg-zinc-200 sm:block" />
-            <Link
-              href="/dashboard"
-              className="hidden items-center text-zinc-400 transition-colors hover:text-zinc-600 sm:flex"
-              title="Dashboard"
-            >
-              <Home size={13} />
-            </Link>
-            <span className="hidden text-zinc-300 sm:inline">/</span>
-          </>
-        )}
+      {/* Unified floating toolbar — draggable */}
+      {tabs.length > 0 && (
+        <TabBar
+          tabs={tabs}
+          activeTabId={activeTabId}
+          boardId={boardId}
+          boardName={boardName}
+          projectName={projectName}
+          projectEmoji={projectEmoji}
+          projectId={projectId}
+          isOwner={isOwner}
+          saveStatus={saveStatus}
+          lastSaved={lastSaved}
+          onTabChange={setActiveTabId}
+          onTabsUpdate={setTabs}
+        />
+      )}
 
-        <Link
-          href={isOwner ? `/project/${projectId}` : "#"}
-          className={`max-w-[80px] truncate text-zinc-500 transition-colors sm:max-w-none ${isOwner ? "hover:text-zinc-800" : "pointer-events-none"}`}
+      {/* Tab editors — use display:none to keep mounted */}
+      {tabs.map((tab) => (
+        <div
+          key={tab.id}
+          className="absolute inset-0"
+          style={{ display: tab.id === activeTabId ? "block" : "none" }}
         >
-          {projectEmoji && `${projectEmoji} `}
-          {projectName}
-        </Link>
-        <span className="text-zinc-300">/</span>
-        <span className="max-w-[80px] truncate font-medium text-zinc-800 sm:max-w-none">
-          {boardName}
-        </span>
-      </div>
-
-      {/* Canvas */}
-      <ExcalidrawBoard boardId={boardId} initialData={boardData} />
+          {tab.type === "EXCALIDRAW" && (
+            <ExcalidrawTab
+              tabId={tab.id}
+              initialData={tab.content as Record<string, unknown> | null}
+              onSaveStatus={tab.id === activeTabId ? handleSaveStatus : undefined}
+            />
+          )}
+          {tab.type === "BLOCKNOTE" && (
+            <BlockNoteTab
+              tabId={tab.id}
+              initialData={tab.content}
+              onSaveStatus={tab.id === activeTabId ? handleSaveStatus : undefined}
+            />
+          )}
+          {tab.type === "TLDRAW" && (
+            <TldrawTab
+              tabId={tab.id}
+              initialData={tab.content}
+              onSaveStatus={tab.id === activeTabId ? handleSaveStatus : undefined}
+            />
+          )}
+          {tab.type === "MINDMAP" && (
+            <MindmapTab
+              tabId={tab.id}
+              initialData={tab.content}
+              onSaveStatus={tab.id === activeTabId ? handleSaveStatus : undefined}
+            />
+          )}
+        </div>
+      ))}
     </div>
   );
 }

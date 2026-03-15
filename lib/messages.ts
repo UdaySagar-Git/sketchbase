@@ -17,6 +17,9 @@ export const confirmDeleteProject = (name: string) => `Delete "${name}" and all 
 export const MSG_CONFIRM_DELETE_WORKSPACE =
   "Are you sure? This will permanently delete your workspace, all projects, and all boards. This cannot be undone.";
 
+// Tabs
+export const MSG_TAB_NAME_REQUIRED = "Tab name is required";
+
 // Save status
 export const MSG_SAVING = "Saving...";
 export const MSG_SAVED = "Saved";
