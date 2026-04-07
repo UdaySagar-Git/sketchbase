@@ -1,0 +1,19 @@
+{
+  "name": "Sketchbase",
+  "short_name": "Sketchbase",
+  "description": "Your visual workspace. Draw, plan, collaborate.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#18181b",
+  "orientation": "any",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

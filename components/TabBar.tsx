@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { createTab, deleteTab, renameTab, reorderTabs } from "@/app/actions";
+import { createTab, deleteTab, renameTab } from "@/app/actions";
 import {
   Plus,
   Pencil,
@@ -12,13 +12,11 @@ import {
   Trash,
   Home,
   Check,
-  GripVertical,
+  PanelLeft,
+  Settings,
 } from "@/components/icons";
-import BoardSidebar from "@/components/BoardSidebar";
-import { islandStyle } from "@/lib/styles";
 import { MSG_SAVING, MSG_SAVED, MSG_SAVE_FAILED } from "@/lib/messages";
 import { formatTime } from "@/lib/date";
-import { useDraggable } from "@/hooks/useDraggable";
 import type { TabType } from "@prisma/client";
 
 export interface TabData {
@@ -44,21 +42,6 @@ const DEFAULT_TAB_NAMES: Record<TabType, string> = {
 };
 
 /* ------------------------------------------------------------------ */
-/*  DragHandle — shared grip icon for both islands                    */
-/* ------------------------------------------------------------------ */
-function DragHandle({ handleRef }: { handleRef: React.RefObject<HTMLDivElement | null> }) {
-  return (
-    <div
-      ref={handleRef}
-      className="flex cursor-grab items-center rounded-md p-0.5 text-zinc-300 transition-colors hover:text-zinc-500 active:cursor-grabbing"
-      title="Drag to move"
-    >
-      <GripVertical size={14} />
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
 /*  Props                                                             */
 /* ------------------------------------------------------------------ */
 interface TabBarProps {
@@ -74,6 +57,8 @@ interface TabBarProps {
   lastSaved: Date | null;
   onTabChange: (tabId: string) => void;
   onTabsUpdate: (tabs: TabData[]) => void;
+  sidebarOpen: boolean;
+  onSidebarToggle: () => void;
 }
 
 export default function TabBar({
@@ -89,19 +74,9 @@ export default function TabBar({
   lastSaved,
   onTabChange,
   onTabsUpdate,
+  sidebarOpen,
+  onSidebarToggle,
 }: TabBarProps) {
-  /* ---- draggable instances ---- */
-  const {
-    containerRef: navContainerRef,
-    handleRef: navHandleRef,
-    style: navStyle,
-  } = useDraggable({ anchor: "top", storageKey: "nav" });
-  const {
-    containerRef: pagesContainerRef,
-    handleRef: pagesHandleRef,
-    style: pagesStyle,
-  } = useDraggable({ anchor: "bottom", storageKey: "pages" });
-
   /* ---- tab management state ---- */
   const [showNewMenu, setShowNewMenu] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ tabId: string; x: number; y: number } | null>(
@@ -109,8 +84,6 @@ export default function TabBar({
   );
   const [editingTabId, setEditingTabId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
-  const [dragTabId, setDragTabId] = useState<string | null>(null);
-  const [dragOverTabId, setDragOverTabId] = useState<string | null>(null);
   const newMenuRef = useRef<HTMLDivElement>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
@@ -188,72 +161,34 @@ export default function TabBar({
     [editValue, tabs, onTabsUpdate]
   );
 
-  const handleDragStart = useCallback((tabId: string) => {
-    setDragTabId(tabId);
-  }, []);
-
-  const handleDragOver = useCallback(
-    (e: React.DragEvent, tabId: string) => {
-      e.preventDefault();
-      if (dragTabId && dragTabId !== tabId) {
-        setDragOverTabId(tabId);
-      }
-    },
-    [dragTabId]
-  );
-
-  const handleDrop = useCallback(
-    async (targetTabId: string) => {
-      if (!dragTabId || dragTabId === targetTabId) {
-        setDragTabId(null);
-        setDragOverTabId(null);
-        return;
-      }
-      const reordered = [...tabs];
-      const fromIndex = reordered.findIndex((t) => t.id === dragTabId);
-      const toIndex = reordered.findIndex((t) => t.id === targetTabId);
-      const [moved] = reordered.splice(fromIndex, 1);
-      reordered.splice(toIndex, 0, moved);
-      const updated = reordered.map((t, i) => ({ ...t, order: i }));
-      onTabsUpdate(updated);
-      await reorderTabs(
-        boardId,
-        updated.map((t) => t.id)
-      );
-      setDragTabId(null);
-      setDragOverTabId(null);
-    },
-    [dragTabId, tabs, boardId, onTabsUpdate]
-  );
-
   const sorted = [...tabs].sort((a, b) => a.order - b.order);
-  const showSaveIndicator = saveStatus !== "idle" || lastSaved;
 
   return (
     <>
       {/* ============================================================ */}
-      {/*  ISLAND 1 — Navigator (top-center, draggable)                */}
+      {/*  HEADER BAR — fixed top                                      */}
       {/* ============================================================ */}
-      <div
-        ref={navContainerRef}
-        className="pointer-events-auto rounded-xl"
-        style={{ ...navStyle, ...islandStyle }}
-      >
-        <div className="flex items-center gap-1.5 px-2 py-1.5 text-[11px] sm:gap-2 sm:text-xs">
-          <DragHandle handleRef={navHandleRef} />
+      <header className="flex h-12 shrink-0 items-center justify-between border-b border-zinc-200 bg-white px-2 sm:px-4">
+        {/* Left section: sidebar toggle + breadcrumbs */}
+        <div className="flex min-w-0 items-center gap-1 sm:gap-2">
+          <button
+            onClick={onSidebarToggle}
+            className="flex items-center justify-center rounded-lg p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
+            title={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+          >
+            <PanelLeft size={18} />
+          </button>
 
-          <div className="h-4 w-px bg-zinc-100" />
+          <div className="hidden h-5 w-px bg-zinc-200 sm:block" />
 
           {isOwner && (
             <>
-              <BoardSidebar />
-              <div className="hidden h-4 w-px bg-zinc-200 sm:block" />
               <Link
                 href="/dashboard"
                 className="hidden items-center text-zinc-400 transition-colors hover:text-zinc-600 sm:flex"
                 title="Dashboard"
               >
-                <Home size={13} />
+                <Home size={15} />
               </Link>
               <span className="hidden text-zinc-300 sm:inline">/</span>
             </>
@@ -261,87 +196,55 @@ export default function TabBar({
 
           <Link
             href={isOwner ? `/project/${projectId}` : "#"}
-            className={`max-w-[80px] truncate text-zinc-500 transition-colors sm:max-w-none ${isOwner ? "hover:text-zinc-800" : "pointer-events-none"}`}
+            className={`hidden max-w-[120px] truncate text-xs text-zinc-500 transition-colors sm:block ${isOwner ? "hover:text-zinc-800" : "pointer-events-none"}`}
           >
             {projectEmoji && `${projectEmoji} `}
             {projectName}
           </Link>
-          <span className="text-zinc-300">/</span>
-          <span className="max-w-[80px] truncate font-medium text-zinc-800 sm:max-w-none">
+          <span className="hidden text-zinc-300 sm:inline">/</span>
+          <span className="max-w-[120px] truncate text-xs font-medium text-zinc-800 sm:max-w-[200px]">
             {boardName}
           </span>
-
-          {showSaveIndicator && (
-            <>
-              <div className="mx-0.5 h-4 w-px bg-zinc-100" />
-              <div className="flex shrink-0 items-center gap-1.5 text-[11px]">
-                {saveStatus === "saving" && (
-                  <>
-                    <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-zinc-500" />
-                    <span className="text-zinc-400">{MSG_SAVING}</span>
-                  </>
-                )}
-                {saveStatus === "saved" && (
-                  <>
-                    <Check size={10} className="text-emerald-500" />
-                    <span className="text-zinc-400">{MSG_SAVED}</span>
-                  </>
-                )}
-                {saveStatus === "error" && (
-                  <>
-                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-red-500" />
-                    <span className="text-red-400">{MSG_SAVE_FAILED}</span>
-                  </>
-                )}
-                {saveStatus === "idle" && lastSaved && (
-                  <span className="text-zinc-300">{formatTime(lastSaved)}</span>
-                )}
-              </div>
-            </>
-          )}
         </div>
-      </div>
 
-      {/* ============================================================ */}
-      {/*  ISLAND 2 — Pages / Tabs (bottom-center, draggable)          */}
-      {/* ============================================================ */}
-      <div
-        ref={pagesContainerRef}
-        className="pointer-events-auto rounded-xl"
-        style={{ ...pagesStyle, ...islandStyle }}
-      >
-        <div className="flex items-center gap-0.5 px-1.5 py-1.5">
-          <DragHandle handleRef={pagesHandleRef} />
+        {/* Mobile: current tab indicator */}
+        {(() => {
+          const activeTab = tabs.find((t) => t.id === activeTabId);
+          if (!activeTab) return null;
+          const config = TAB_TYPE_CONFIG[activeTab.type];
+          const Icon = config.icon;
+          return (
+            <button
+              onClick={onSidebarToggle}
+              className="flex items-center gap-1.5 rounded-lg bg-zinc-50 px-2.5 py-1.5 text-xs font-medium text-zinc-700 md:hidden"
+            >
+              <Icon size={13} />
+              <span className="max-w-[80px] truncate">{activeTab.name}</span>
+            </button>
+          );
+        })()}
 
-          <div className="mx-0.5 h-4 w-px bg-zinc-100" />
-
+        {/* Center section: tab switcher (desktop) */}
+        <div className="hidden items-center gap-0.5 md:flex">
           {sorted.map((tab) => {
             const config = TAB_TYPE_CONFIG[tab.type];
             const Icon = config.icon;
             const isActive = tab.id === activeTabId;
 
             return (
-              <div
+              <button
                 key={tab.id}
-                draggable
-                onDragStart={() => handleDragStart(tab.id)}
-                onDragOver={(e) => handleDragOver(e, tab.id)}
-                onDrop={() => handleDrop(tab.id)}
-                onDragEnd={() => {
-                  setDragTabId(null);
-                  setDragOverTabId(null);
-                }}
                 onClick={() => !editingTabId && onTabChange(tab.id)}
                 onContextMenu={(e) => {
                   e.preventDefault();
                   setContextMenu({ tabId: tab.id, x: e.clientX, y: e.clientY });
                 }}
                 onDoubleClick={() => handleRenameStart(tab.id)}
-                className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition-all select-none ${
+                className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition-all ${
                   isActive
                     ? "bg-zinc-100 font-medium text-zinc-900"
                     : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-700"
-                } ${dragOverTabId === tab.id ? "ring-2 ring-zinc-400" : ""}`}
+                }`}
               >
                 <Icon size={13} />
                 {editingTabId === tab.id ? (
@@ -360,7 +263,7 @@ export default function TabBar({
                 ) : (
                   <span className="max-w-[80px] truncate">{tab.name}</span>
                 )}
-              </div>
+              </button>
             );
           })}
 
@@ -369,18 +272,13 @@ export default function TabBar({
             <button
               onClick={() => setShowNewMenu(!showNewMenu)}
               className="flex items-center rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-50 hover:text-zinc-600"
+              title="New page"
             >
               <Plus size={14} />
             </button>
 
             {showNewMenu && (
-              <div
-                className="absolute bottom-full left-0 z-[9999999] mb-2 w-44 overflow-hidden rounded-xl py-1 shadow-lg"
-                style={{
-                  ...islandStyle,
-                  boxShadow: "0 4px 24px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)",
-                }}
-              >
+              <div className="absolute top-full right-0 z-50 mt-1 w-44 overflow-hidden rounded-xl border border-zinc-200 bg-white py-1 shadow-lg">
                 {(Object.keys(TAB_TYPE_CONFIG) as TabType[]).map((type) => {
                   const config = TAB_TYPE_CONFIG[type];
                   const Icon = config.icon;
@@ -405,18 +303,54 @@ export default function TabBar({
             )}
           </div>
         </div>
-      </div>
 
-      {/* Context menu */}
+        {/* Right section: save status + settings */}
+        <div className="flex shrink-0 items-center gap-2">
+          {/* Save status */}
+          <div className="flex items-center gap-1.5 text-[11px]">
+            {saveStatus === "saving" && (
+              <>
+                <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-zinc-500" />
+                <span className="hidden text-zinc-400 sm:inline">{MSG_SAVING}</span>
+              </>
+            )}
+            {saveStatus === "saved" && (
+              <>
+                <Check size={10} className="text-emerald-500" />
+                <span className="hidden text-zinc-400 sm:inline">{MSG_SAVED}</span>
+              </>
+            )}
+            {saveStatus === "error" && (
+              <>
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-red-500" />
+                <span className="hidden text-red-400 sm:inline">{MSG_SAVE_FAILED}</span>
+              </>
+            )}
+            {saveStatus === "idle" && lastSaved && (
+              <span className="hidden text-zinc-300 sm:inline">{formatTime(lastSaved)}</span>
+            )}
+          </div>
+
+          {isOwner && (
+            <Link
+              href="/settings"
+              className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-50 hover:text-zinc-600"
+              title="Settings"
+            >
+              <Settings size={16} />
+            </Link>
+          )}
+        </div>
+      </header>
+
+      {/* Context menu (right-click on tabs) */}
       {contextMenu && (
         <div
           ref={contextMenuRef}
-          className="fixed z-[9999999] w-36 overflow-hidden rounded-xl py-1 shadow-lg"
+          className="fixed z-[9999] w-36 overflow-hidden rounded-xl border border-zinc-200 bg-white py-1 shadow-lg"
           style={{
-            ...islandStyle,
             left: contextMenu.x,
             top: contextMenu.y,
-            boxShadow: "0 4px 24px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)",
           }}
         >
           <button

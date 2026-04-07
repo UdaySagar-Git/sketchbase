@@ -36,6 +36,7 @@
     "@mantine/hooks": "^8.3.17",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
+    "@serwist/next": "^9.5.7",
     "markmap-common": "^0.18.9",
     "markmap-lib": "^0.18.12",
     "markmap-view": "^0.18.12",
@@ -60,6 +61,7 @@
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "prisma": "^7.5.0",
+    "serwist": "^9.5.7",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

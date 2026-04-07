@@ -45,6 +45,27 @@ export async function setBoardUnlocked(boardId: string): Promise<void> {
   });
 }
 
+// --- Workspace unlock cookies (for non-owner visitors when workspace has password) ---
+
+const WORKSPACE_UNLOCK_PREFIX = "ws-unlock-";
+const WORKSPACE_UNLOCK_MAX_AGE = 60 * 60 * 24; // 24 hours
+
+export async function isWorkspaceUnlocked(workspaceId: string): Promise<boolean> {
+  const cookieStore = await cookies();
+  return cookieStore.get(`${WORKSPACE_UNLOCK_PREFIX}${workspaceId}`)?.value === "1";
+}
+
+export async function setWorkspaceUnlocked(workspaceId: string): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.set(`${WORKSPACE_UNLOCK_PREFIX}${workspaceId}`, "1", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: WORKSPACE_UNLOCK_MAX_AGE,
+  });
+}
+
 // --- Timing-safe hash comparison ---
 
 export function timingSafeEqual(a: string, b: string): boolean {

@@ -8,6 +8,8 @@ import {
   clearKeyHash,
   isBoardUnlocked,
   setBoardUnlocked,
+  isWorkspaceUnlocked,
+  setWorkspaceUnlocked,
   timingSafeEqual,
 } from "@/lib/auth";
 import { redirect } from "next/navigation";
@@ -358,6 +360,28 @@ export async function unlockBoard(
   await setBoardUnlocked(boardId);
 
   return { success: true, content: board.content as Record<string, unknown> };
+}
+
+export async function unlockWorkspaceForBoard(
+  boardId: string,
+  password: string
+): Promise<{ success: boolean; error?: string }> {
+  const board = await prisma.board.findUnique({
+    where: { id: boardId },
+    include: { project: { include: { workspace: true } } },
+  });
+  if (!board) return { success: false, error: "Board not found" };
+
+  const workspace = board.project.workspace;
+  if (!workspace.passHash) return { success: true };
+
+  const inputHash = await hashKey(password);
+  if (!timingSafeEqual(inputHash, workspace.passHash)) {
+    return { success: false, error: MSG_INCORRECT_PASSWORD };
+  }
+
+  await setWorkspaceUnlocked(workspace.id);
+  return { success: true };
 }
 
 // Keep for backward compat — but unlockBoard is preferred
